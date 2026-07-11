@@ -1,0 +1,47 @@
+# dotstack - AI Coding Agent Guidelines
+
+You are working on **dotstack**, a deterministic technology stack recommendation engine. To maintain codebase stability, you must strictly adhere to the rules below.
+
+---
+
+## 1. Core Architecture (Hexagonal / Ports & Adapters)
+
+- **Pure Core Domain (`src/core/`)**:
+  - Contains all models, recommendation service, rules, and port interfaces.
+  - **CRITICAL**: No dependencies on Node.js runtime libraries (e.g., `fs`, `path`, `process`, `os`, `http`) or external environment-specific APIs.
+  - Must run in pure JS/TS environments (browsers, serverless functions, Deno, Bun).
+- **Adapters (`src/adapters/`)**:
+  - Contains environment-specific realizations of ports (Node.js file system, console logger, Commander CLI adapter).
+  - External package dependencies (e.g., `commander`, `picocolors`, `js-yaml`) should remain isolated inside adapters.
+
+---
+
+## 2. Coding Standards & Conventions
+
+- **English-First**: All comments, documentation, issues, variables, and output templates must be written in English.
+- **ES Modules (ESM)**:
+  - The project is configured with `"type": "module"` and uses `NodeNext` resolution.
+  - **CRITICAL**: When importing local files, you **MUST** append the `.js` extension to import paths, even though the file on disk is `.ts`.
+  - Example: `import { Rule } from './rules/index.js';`
+- **Typing**: Ensure strict type checking is preserved. Avoid using `any` unless absolutely necessary (e.g., catching arbitrary runtime errors). Prefer Zod schemas for external boundary inputs.
+
+---
+
+## 3. Directory Structure Map
+
+- `docs/`: PRD, Architecture documents, and V1 Backlogs.
+- `src/core/models/`: Zod validation schemas and type interfaces (e.g., `ProjectBrief`, `StackRecommendation`).
+- `src/core/rules/`: Heuristic rules matching constraints to scoring values.
+- `src/core/registry/`: Database mapping technologies to pattern references.
+- `src/core/ports/`: Interfaces defining boundaries (e.g., `FileSystemPort`).
+- `src/adapters/`: Implementations of ports and CLI commands.
+- `tests/`: Vitest suite divided into `tests/core/` and `tests/adapters/`.
+
+---
+
+## 4. Verification Workflow
+
+Before concluding any development task:
+1. **Compile the project**: Run `npm run build` to verify there are no TypeScript compilation errors.
+2. **Execute tests**: Run `npm run test` using Vitest to execute the automated rules and adapter validation suites.
+3. **Format**: Maintain styling rules by running `npm run format`.

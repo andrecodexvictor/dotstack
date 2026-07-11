@@ -8,7 +8,7 @@ dist/
 # Local configuration & recommendations
 dotstack-project.yaml
 .stack/
-.context/
+.context/dotstack/
 tests/tmp-fs-test/
 
 # OS files

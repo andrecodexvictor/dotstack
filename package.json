@@ -24,6 +24,7 @@
   "author": "andrecodexvictor",
   "license": "MIT",
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.1",
     "commander": "^11.1.0",
     "js-yaml": "^4.1.0",
     "picocolors": "^1.0.0",

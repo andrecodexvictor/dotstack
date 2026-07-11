@@ -1,4 +1,4 @@
-import { FileSystemPort } from '../../core/ports/file-system.port.js';
+import { FileSystemPort, ProjectFile } from '../../core/ports/file-system.port.js';
 import { StackRecommendation } from '../../core/models/recommendation.js';
 import fs from 'fs/promises';
 import path from 'path';
@@ -110,5 +110,55 @@ export class NodeFileSystemAdapter implements FileSystemPort {
     md += `*Generated automatically by dotstack on ${new Date(rec.metadata.generatedAt).toLocaleDateString()}.*\n`;
 
     return md;
+  }
+
+  async getFilesRecursively(projectRoot: string): Promise<ProjectFile[]> {
+    const files: ProjectFile[] = [];
+    const ignoreDirs = new Set([
+      '.git', 'node_modules', 'dist', '.stack', '.context/dotstack',
+      'coverage', '.release', '.gemini', '.system_generated'
+    ]);
+    const readableExtensions = new Set([
+      '.ts', '.js', '.json', '.yaml', '.yml', '.md', '.py', '.go', '.java',
+      '.tf', '.css', '.html', '.sh', '.bat', '.toml', '.xml', '.sql', '.graphql'
+    ]);
+
+    const walk = async (currentDir: string) => {
+      const entries = await fs.readdir(currentDir, { withFileTypes: true });
+      for (const entry of entries) {
+        const fullPath = path.join(currentDir, entry.name);
+        const relativePath = path.relative(projectRoot, fullPath);
+
+        const segments = relativePath.split(path.sep);
+        const shouldIgnore = segments.some(seg => ignoreDirs.has(seg));
+        if (shouldIgnore) {
+          continue;
+        }
+
+        if (entry.isDirectory()) {
+          await walk(fullPath);
+        } else if (entry.isFile()) {
+          const ext = path.extname(entry.name).toLowerCase();
+          if (readableExtensions.has(ext)) {
+            try {
+              const content = await fs.readFile(fullPath, 'utf8');
+              files.push({
+                relativePath: relativePath.replace(/\\/g, '/'),
+                content
+              });
+            } catch {
+              // skip unreadable files
+            }
+          }
+        }
+      }
+    };
+
+    try {
+      await walk(projectRoot);
+    } catch {
+      // ignore walk errors
+    }
+    return files;
   }
 }

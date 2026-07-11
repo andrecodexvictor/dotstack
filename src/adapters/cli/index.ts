@@ -4,9 +4,13 @@ import { Command } from 'commander';
 import { RecommendationService } from '../../core/services/recommendation.service.js';
 import { NodeFileSystemAdapter } from '../fs/node-fs.adapter.js';
 import { ConsoleLoggerAdapter } from '../logger/console-logger.adapter.js';
+import { startMcpServer } from '../mcp/mcp.adapter.js';
+import { installMcpServer } from './mcp-installer.js';
+import { SemanticSearchService } from '../../core/services/semantic-search.service.js';
 import fs from 'fs/promises';
 import path from 'path';
 import pc from 'picocolors';
+import { fileURLToPath } from 'url';
 
 const program = new Command();
 const logger = new ConsoleLoggerAdapter();
@@ -132,6 +136,86 @@ program
           console.error(pc.red(`  path: "${issue.path.join('.')}" - ${issue.message}`));
         }
       }
+      process.exit(1);
+    }
+  });
+
+// mcp parent command
+const mcpCmd = program
+  .command('mcp')
+  .description('Manage Model Context Protocol (MCP) server hooks and installs');
+
+mcpCmd
+  .command('start')
+  .description('Start the stdio-based dotstack MCP server')
+  .action(async () => {
+    try {
+      await startMcpServer();
+    } catch (err: any) {
+      logger.error(`MCP Server failed to start: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+mcpCmd
+  .command('install')
+  .description('Automatically register dotstack MCP server in Claude Desktop and/or Cursor config')
+  .argument('[target]', 'Target tool configuration: cursor, claude, or all', 'all')
+  .action(async (target) => {
+    try {
+      const currentFile = fileURLToPath(import.meta.url);
+      logger.info(`Configuring dotstack MCP using installer path: ${pc.cyan(currentFile)}...`);
+      const results = await installMcpServer(target as any, currentFile);
+      for (const res of results) {
+        logger.success(res);
+      }
+    } catch (err: any) {
+      logger.error(`MCP Installation failed: ${err.message}`);
+      process.exit(1);
+    }
+  });
+
+// search command
+program
+  .command('search')
+  .description('Search local codebase using TF-IDF token vector cosine similarity (offline semantic search)')
+  .argument('<query>', 'Semantic query string')
+  .option('-r, --root <path>', 'Workspace directory to scan', '.')
+  .option('-k, --top-k <number>', 'Maximum matching code blocks to return', '5')
+  .action(async (query, options) => {
+    try {
+      const rootPath = path.resolve(options.root);
+      const topK = parseInt(options.topK, 10);
+
+      logger.info(`Scanning codebase recursively in: ${pc.cyan(rootPath)}...`);
+      const files = await fileSystem.getFilesRecursively(rootPath);
+
+      logger.info(`Indexing and matching query: "${pc.cyan(query)}"...`);
+      const searchService = new SemanticSearchService();
+      const matches = searchService.search(files, query, topK);
+
+      if (matches.length === 0) {
+        logger.warn(`No relevant snippets matched query: "${query}"`);
+        return;
+      }
+
+      console.log('\n' + pc.bold(pc.green(`=================== LOCAL SEMANTIC MATCHES (Top ${matches.length}) ===================`)));
+      for (let i = 0; i < matches.length; i++) {
+        const match = matches[i];
+        const absPath = path.resolve(rootPath, match.relativePath);
+        console.log(`\n${pc.bold(`${i + 1}. [${match.relativePath}]`)} - Score: ${pc.yellow(match.score)}`);
+        console.log(pc.dim(`  file:///${absPath.replace(/\\/g, '/')}#L${match.startLine}-L${match.endLine}`));
+        console.log(pc.gray('  --------------------------------------------------'));
+        const snippetLines = match.snippet.split('\n');
+        for (const line of snippetLines) {
+          console.log(`  ${line}`);
+        }
+        console.log(pc.gray('  --------------------------------------------------'));
+      }
+      console.log('\n' + pc.bold(pc.green('===============================================================================\n')));
+
+    } catch (err: any) {
+      logger.error(`Semantic search failed: ${err.message}`);
       process.exit(1);
     }
   });

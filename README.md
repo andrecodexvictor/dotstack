@@ -4,13 +4,13 @@
 [![CI status](https://img.shields.io/badge/CI-passing-success.svg)](https://github.com/andrecodexvictor/dotstack)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**dotstack** is a deterministic, rule-based technology stack recommendation engine built for human developers and AI coding agents. It evaluates project scopes and constraints to deliver optimal architectural selections, complete with curated design patterns and template references.
+**dotstack** is a deterministic, rule-based technology stack recommendation engine built for human developers and AI coding agents. It evaluates project scopes and constraints to deliver optimal architectural selections, complete with curated design patterns, template references, and **offline vector space semantic search**.
 
 ![dotstack Architecture](./docs/assets/dotstack_architecture_schematic.png)
 
-Instead of re-teaching every AI coding tool your project's architectural decisions from scratch, `dotstack` provides a durable, tool-agnostic stack configuration layer. When run, it generates structured stack manifests that travel with the project across whatever editor or agent harness you use next.
+Instead of re-teaching every AI coding tool your project's architectural decisions from scratch, `dotstack` provides a durable, tool-agnostic stack configuration layer. 
 
-The goal is not only to suggest a tech stack, but to make system boundaries **explicit, legibly constrained, and easily auditable by AI agents**.
+By exposing a native **Model Context Protocol (MCP) server** and an **offline semantic search engine**, agents can automatically read, validate, and search codebases under the target architecture's constraints.
 
 ---
 
@@ -18,98 +18,121 @@ The goal is not only to suggest a tech stack, but to make system boundaries **ex
 
 `dotstack` is three things at once:
 1. 📝 **A Standard Input Specification**: A simple `dotstack-project.yaml` defining product goals, scale, budget, and team experience.
-2. ⚙️ **A Pure TypeScript Rules Engine**: A deterministic scoring compiler decoupled from Node.js (usable in CLI, browser, serverless, or MCP runtimes).
-3. 📦 **An Agent-Friendly Output layer**: Formats results directly into a `.stack/` directory (standalone) or `./.context/dotstack/` directory (when integrated with context managers) containing:
-   - `stack.yaml`: Machine-readable recommendations for AI tools and MCP servers.
-   - `README.md`: A tailored developer guide containing rationales, risk warnings, and curated design pattern references.
-
----
-
-## Why Dotstack Exists
-
-Most early-stage projects suffer from common architectural breakdowns:
-- **Developer Bias**: Selecting overly complex stacks (e.g., microservices for a 2-developer team) due to personal preferences rather than project constraints.
-- **Agent Context Drift**: AI coding assistants (like Claude Code, Cursor, Copilot, or Windsurf) often suggest out-of-bounds libraries or conflicting design patterns because the tech stack rules aren't explicitly documented in the repository.
-- **Over-Engineering**: Lack of guardrails to penalize operational complexity during bootstrapping.
-
-`dotstack` solves this by introducing a deterministic scoring logic based on architectural heuristics, mapping recommendations directly to curated pattern codebases on GitHub.
+2. ⚙️ **A Pure TypeScript Rules Engine & Search Engine**: A deterministic scoring compiler and a local TF-IDF vector space engine decoupled from Node.js (usable in CLI, browser, serverless, or MCP runtimes).
+3. 📦 **An Agent-Friendly Tool Surface**: Exposes recommendations, patterns, and semantic search to CLI shells and MCP-enabled AI clients (Cursor, Claude Code, Windsurf, Claude Desktop, etc.).
 
 ---
 
 ## Getting Started / Como Começar
 
-### Path 1: Standalone CLI (English)
-Use the CLI to initialize your project parameters and generate stack recommendations.
+### Path 1: Agent & IDE Integration via MCP (Recommended)
+Use this path to automatically register the `dotstack` tools in your AI editors.
+
+1. **Build and install MCP server**:
+   ```bash
+   npm run build
+   npx dotstack mcp install
+   ```
+   *This automatically detects your system configuration and registers the `dotstack` MCP server in **Cursor** and **Claude Desktop**.*
+
+2. **Prompt your AI agent**:
+   AI agents can now run stack audits and semantic codebase searches using these tools:
+   - `dotstack_init`: Instantiates parameter files.
+   - `dotstack_recommend`: Evaluates project briefs and writes recommendation reports.
+   - `dotstack_patterns`: Resolves design pattern guidelines and templates.
+   - `dotstack_semantic_search`: Performs offline vector space searches over code chunks.
+
+---
+
+### Path 2: Standalone CLI & Local Semantic Search
+Use this path to initialize, evaluate, and search repositories directly from the terminal.
 
 1. **Initialize project brief**:
    ```bash
    npx dotstack init
    ```
-   *This creates a default template `dotstack-project.yaml` in your working directory.*
+   *Creates a default template `dotstack-project.yaml` in your working directory.*
 
-2. **Evaluate recommendations**:
+2. **Generate recommendations**:
    ```bash
    npx dotstack recommend
    ```
-   *This evaluates your parameters and outputs recommendation files to `.stack/` (or `.context/dotstack/` if a context manager directory exists).*
+   *Evaluates your parameters and outputs recommendation reports to `.stack/` (or `.context/dotstack/` if a context manager directory exists).*
 
-3. **Instruct your AI tool**:
-   Prompt your IDE agent or MCP assistant:
-   > *"Read `.stack/stack.yaml` and `.stack/README.md`. Adhere strictly to these stack limits and pattern references during all code changes."*
+3. **Perform local semantic searches**:
+   Run an offline token-vector search over code chunks in your repository:
+   ```bash
+   npx dotstack search "database connection cache rules"
+   ```
+   *Scans files recursively, constructs a local TF-IDF index, computes cosine similarity, and outputs matching code snippets with scores and deep links.*
 
 ---
 
-### Caminho 2: CLI Local (Português)
-Use o CLI para configurar os parâmetros do seu projeto e receber a recomendação ideal de stack.
+### Caminho em Português: Integração & CLI Local
 
-1. **Inicializar a configuração**:
+1. **Configurar o Servidor MCP**:
    ```bash
-   npx dotstack init
+   npm run build
+   npx dotstack mcp install
    ```
-   *Isso criará o arquivo modelo `dotstack-project.yaml` no diretório atual.*
+   *Registra automaticamente as ferramentas do `dotstack` no seu **Cursor** ou **Claude Desktop**.*
 
-2. **Gerar recomendações**:
+2. **Buscar código semanticamente offline**:
    ```bash
-   npx dotstack recommend
+   npx dotstack search "regras da engine de recomendação"
    ```
-   *Isso analisa os requisitos e gera os relatórios em `.stack/` (ou em `.context/dotstack/` se a pasta `.context/` estiver presente).*
-
-3. **Instruir o seu Agente de IA**:
-   Adicione o seguinte comando no prompt do seu editor (Cursor, Claude Code, Copilot, etc.):
-   > *"Leia o arquivo `.stack/stack.yaml` e `.stack/README.md`. Siga rigorosamente essas diretrizes de tecnologia e padrões de projeto nas próximas edições de código."*
+   *Varre a base de código, calcula pesos TF-IDF e retorna os trechos de código mais semelhantes (cosseno de similaridade).*
 
 ---
 
-## Core Concepts
+## CLI Reference
 
-### 1. The Project Brief Schema (`dotstack-project.yaml`)
-A single, clean configuration file defining system parameters:
+### `dotstack init`
+Generates a template `dotstack-project.yaml` parameter file.
+- `-o, --output <path>`: Custom path for configuration file (default: `dotstack-project.yaml`).
 
-```yaml
-product:
-  name: "My App"
-  type: "SaaS" # SaaS, API, MobileApp, CLI, InternalTool, WebApp
+### `dotstack recommend`
+Analyzes parameters, logs risk alerts (e.g. over-engineering flags), and writes output reports.
+- `-f, --file <path>`: Path to project brief configuration (default: `dotstack-project.yaml`).
+- `-r, --root <path>`: Project workspace root path for output routing (default: `.`).
 
-team:
-  devs: 3 # Number of developers
-  experience: "intermediate" # junior, intermediate, senior
+### `dotstack search <query>`
+Scans codebases and runs local TF-IDF token vector cosine similarity matching.
+- `-r, --root <path>`: Workspace directory to scan (default: `.`).
+- `-k, --top-k <number>`: Maximum matching code blocks to return (default: `5`).
 
-requirements:
-  scale: "medium" # low, medium, high
-  latency: "normal" # normal, low-latency
-  availability: "normal" # normal, high-availability
+### `dotstack mcp start`
+Starts the stdio-based MCP server.
 
-constraints:
-  # language: "TypeScript" # Optional overrides
-  # database: "PostgreSQL"
-  # cloud: "Render"
-  # budget: 50
+### `dotstack mcp install [target]`
+Automatically registers the stdio MCP server in local Cursor and/or Claude Desktop configurations.
+- `target`: `cursor`, `claude`, or `all` (default: `all`).
+
+---
+
+## SDK / Programmatic API Usage
+
+Because `dotstack` isolates its Core Domain via Ports and Adapters, you can import and run the rules engine or the semantic search indexer in browsers, serverless functions, or custom extensions:
+
+```typescript
+import { RecommendationService, SemanticSearchService } from 'dotstack';
+
+// 1. Get recommendation
+const service = new RecommendationService();
+const recommendation = service.recommend({
+  product: { name: "Analytics Service", type: "API" },
+  team: { devs: 4, experience: "senior" },
+  requirements: { scale: "high", latency: "low-latency" }
+});
+
+console.log(recommendation.recommendation.backend); // Outputs: "Go (Gin)"
+
+// 2. Perform programmatical search
+const searchService = new SemanticSearchService();
+const matches = searchService.search([
+  { relativePath: "index.js", content: "const app = express();" }
+], "express app setup");
 ```
-
-### 2. File Routing
-`dotstack` is highly compatible with adjacent context tools:
-- **Standalone**: If `./.context/` is absent, results are saved to `./.stack/stack.yaml` and `./.stack/README.md`.
-- **Integrated Contexts**: If `./.context/` exists, outputs are saved directly to `./.context/dotstack/stack.yaml` and `./.context/dotstack/README.md`.
 
 ---
 
@@ -127,38 +150,6 @@ For every recommended stack, `dotstack` embeds direct references to educational 
 
 ---
 
-## CLI Reference
-
-### `dotstack init`
-Generates a template `dotstack-project.yaml` parameter file.
-- `-o, --output <path>`: Custom path for configuration file (default: `dotstack-project.yaml`).
-
-### `dotstack recommend`
-Analyzes parameters, logs risk alerts (e.g. over-engineering flags), and writes output reports.
-- `-f, --file <path>`: Path to project brief configuration (default: `dotstack-project.yaml`).
-- `-r, --root <path>`: Project workspace root path for output routing (default: `.`).
-
----
-
-## SDK / Programmatic API Usage
-
-Because `dotstack` isolates its Core Domain via Ports and Adapters, you can import and run the rules engine in browsers, serverless functions, or custom extensions:
-
-```typescript
-import { RecommendationService } from 'dotstack';
-
-const service = new RecommendationService();
-const recommendation = service.recommend({
-  product: { name: "Analytics Service", type: "API" },
-  team: { devs: 4, experience: "senior" },
-  requirements: { scale: "high", latency: "low-latency" }
-});
-
-console.log(recommendation.recommendation.backend); // Outputs: "Go (Gin)"
-```
-
----
-
 ## Developer Guide & Codebase Contributions
 
 1. **Install dependencies**:
@@ -170,7 +161,7 @@ console.log(recommendation.recommendation.backend); // Outputs: "Go (Gin)"
    ```bash
    npm run test
    ```
-   *We use Vitest to run rules and file-routing unit tests.*
+   *We use Vitest to run rules, file-routing, and semantic search unit tests.*
 
 3. **Build compiled assets**:
    ```bash

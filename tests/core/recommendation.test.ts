@@ -1,0 +1,114 @@
+import { describe, it, expect } from 'vitest';
+import { RecommendationService } from '../../src/core/services/recommendation.service.js';
+import { ProjectBrief } from '../../src/core/models/brief.js';
+
+describe('RecommendationService Rules Engine', () => {
+  const service = new RecommendationService();
+
+  it('should recommend Monolith and output warning risk for a small team (< 6 devs)', () => {
+    const brief: ProjectBrief = {
+      product: {
+        name: 'Simple API Project',
+        type: 'API'
+      },
+      team: {
+        devs: 2,
+        experience: 'intermediate'
+      },
+      requirements: {
+        scale: 'low',
+        latency: 'normal',
+        availability: 'normal'
+      },
+      constraints: {}
+    };
+
+    const rec = service.recommend(brief);
+
+    expect(rec.recommendation.architectureStyle).toBe('Monolith');
+    expect(rec.recommendation.frontend).toBe('None'); // API has no frontend
+    expect(rec.risks).toContain('Microservices are discouraged for teams with only 2 developer(s) due to overhead.');
+  });
+
+  it('should recommend Go (Gin) backend when latency is low-latency', () => {
+    const brief: ProjectBrief = {
+      product: {
+        name: 'High Performance System',
+        type: 'SaaS'
+      },
+      team: {
+        devs: 5,
+        experience: 'senior'
+      },
+      requirements: {
+        scale: 'high',
+        latency: 'low-latency',
+        availability: 'high-availability'
+      },
+      constraints: {}
+    };
+
+    const rec = service.recommend(brief);
+
+    expect(rec.recommendation.backend).toBe('Go (Gin)');
+    expect(rec.recommendation.cache).toBe('Redis');
+  });
+
+  it('should respect database and cloud overrides in constraints', () => {
+    const brief: ProjectBrief = {
+      product: {
+        name: 'Custom SaaS',
+        type: 'SaaS'
+      },
+      team: {
+        devs: 3,
+        experience: 'intermediate'
+      },
+      requirements: {
+        scale: 'medium',
+        latency: 'normal',
+        availability: 'normal'
+      },
+      constraints: {
+        database: 'MongoDB',
+        cloud: 'AWS'
+      }
+    };
+
+    const rec = service.recommend(brief);
+
+    expect(rec.recommendation.database).toBe('MongoDB');
+    expect(rec.recommendation.deployment).toBe('AWS');
+  });
+
+  it('should attach correct design patterns and repository examples for NestJS + PostgreSQL', () => {
+    const brief: ProjectBrief = {
+      product: {
+        name: 'Large SaaS App',
+        type: 'SaaS'
+      },
+      team: {
+        devs: 8,
+        experience: 'senior'
+      },
+      requirements: {
+        scale: 'high',
+        latency: 'normal',
+        availability: 'high-availability'
+      },
+      constraints: {
+        language: 'TypeScript'
+      }
+    };
+
+    const rec = service.recommend(brief);
+
+    expect(rec.recommendation.backend).toBe('TypeScript (NestJS)');
+    expect(rec.recommendation.database).toBe('PostgreSQL');
+
+    const patternNames = rec.patterns.map(p => p.name);
+    expect(patternNames).toContain('Clean Architecture (Hexagonal / Ports & Adapters)');
+    expect(patternNames).toContain('Repository Pattern');
+    expect(patternNames).toContain('CQRS (Command Query Responsibility Segregation)');
+  });
+});

@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Compiled files
+dist/
+*.tsbuildinfo
+
+# Local configuration & recommendations
+dotstack-project.yaml
+.stack/
+.context/
+tests/tmp-fs-test/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,39 @@
+import { Rule } from './index.js';
+import { ProjectBrief } from '../models/brief.js';
+import { ScoringRegistry } from '../models/recommendation.js';
+
+export class ArchitectureRule implements Rule {
+  name = 'Architecture Style Rule';
+  description = 'Decides between Monolith, Modular Monolith, and Microservices based on team size and scale.';
+
+  evaluate(brief: ProjectBrief, registry: ScoringRegistry): void {
+    const devs = brief.team.devs;
+    const scale = brief.requirements.scale;
+
+    if (devs < 6) {
+      registry.architectureStyle['Monolith'] += 50;
+      registry.architectureStyle['Modular Monolith'] += 30;
+      registry.architectureStyle['Microservices'] -= 100;
+      
+      registry.risks.push(
+        `Microservices are discouraged for teams with only ${devs} developer(s) due to overhead.`
+      );
+      registry.rationales.architectureStyle = 
+        `Monolith chosen because the team is small (${devs} dev(s)). Minimizes infrastructure and synchronization overhead.`;
+    } else {
+      if (scale === 'high') {
+        registry.architectureStyle['Microservices'] += 40;
+        registry.architectureStyle['Modular Monolith'] += 50;
+        registry.architectureStyle['Monolith'] += 10;
+        registry.rationales.architectureStyle = 
+          'Modular Monolith chosen for a larger team with high scale requirements to maintain modularity with manageable complexity.';
+      } else {
+        registry.architectureStyle['Modular Monolith'] += 50;
+        registry.architectureStyle['Monolith'] += 30;
+        registry.architectureStyle['Microservices'] += 10;
+        registry.rationales.architectureStyle = 
+          'Modular Monolith chosen to facilitate division of labor for a team of ' + devs + ' devs without microservice overhead.';
+      }
+    }
+  }
+}

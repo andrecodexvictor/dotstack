@@ -4,7 +4,7 @@ import { ScoringRegistry } from '../models/recommendation.js';
 
 export class FrontendRule implements Rule {
   name = 'Frontend Framework Rule';
-  description = 'Recommends frontend frameworks based on product type, team experience, and scale.';
+  description = 'Recommends frontend frameworks (React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, SolidJS, Astro) based on scale, experience, and product type.';
 
   evaluate(brief: ProjectBrief, registry: ScoringRegistry): void {
     const type = brief.product.type;
@@ -17,23 +17,48 @@ export class FrontendRule implements Rule {
       return;
     }
 
-    // Baseline scores
-    registry.frontend['React'] += 30;
-    registry.frontend['Next.js (React)'] += 20;
-    registry.frontend['Vue'] += 20;
-    registry.frontend['Svelte'] += 20;
+    // Baselines
+    registry.frontend['React'] += 20;
+    registry.frontend['Next.js (React)'] += 25;
+    registry.frontend['Vue'] += 15;
+    registry.frontend['Nuxt (Vue)'] += 15;
+    registry.frontend['Svelte'] += 15;
+    registry.frontend['SvelteKit'] += 20;
+    registry.frontend['Angular'] += 10;
+    registry.frontend['SolidJS'] += 15;
+    registry.frontend['Astro'] += 15;
 
-    if (scale === 'high') {
-      registry.frontend['Next.js (React)'] += 40; // favors production scale and SSR
-      registry.frontend['React'] += 20;
-      registry.rationales.frontend = 'Next.js (React) recommended for high scale web application to support SSR and SEO optimization.';
-    } else if (experience === 'junior') {
-      registry.frontend['Vue'] += 30;
-      registry.frontend['Svelte'] += 30;
-      registry.rationales.frontend = 'Vue or Svelte recommended due to lower complexity and junior developer friendly ecosystem.';
-    } else {
-      registry.frontend['React'] += 20;
-      registry.rationales.frontend = 'React recommended as the industry standard for intermediate/senior developer productivity.';
+    // 1. Astro for low-scale static sites / content sites / Astro islands
+    if (scale === 'low') {
+      registry.frontend['Astro'] += 40;
+      registry.frontend['Svelte'] += 20;
+      registry.frontend['SolidJS'] += 25;
+      registry.rationales.frontend = 'Astro recommended for low-scale applications to maximize performance via static site generation (SSG) and islands architecture.';
+      return;
     }
+
+    // 2. High scale production frameworks
+    if (scale === 'high') {
+      registry.frontend['Next.js (React)'] += 45;
+      registry.frontend['SvelteKit'] += 35;
+      registry.frontend['Nuxt (Vue)'] += 30;
+      registry.frontend['Angular'] += 25;
+      registry.rationales.frontend = 'Next.js (React) recommended for high-scale environments to leverage SSR, ISR, and extensive ecosystem support.';
+      return;
+    }
+
+    // 3. Junior teams
+    if (experience === 'junior') {
+      registry.frontend['Vue'] += 35;
+      registry.frontend['Svelte'] += 30;
+      registry.frontend['Astro'] += 30;
+      registry.rationales.frontend = 'Vue or Svelte recommended due to lower learning curve and simple boilerplate, speeding up delivery for junior teams.';
+      return;
+    }
+
+    // 4. Default SaaS/WebApp intermediate
+    registry.frontend['Next.js (React)'] += 20;
+    registry.frontend['SvelteKit'] += 15;
+    registry.rationales.frontend = 'Next.js (React) recommended as the standard framework for feature-rich web applications.';
   }
 }

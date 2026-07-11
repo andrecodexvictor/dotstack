@@ -45,7 +45,12 @@ export const LanguagePreferenceSchema = z.enum([
   'TypeScript',
   'Python',
   'Go',
-  'Java'
+  'Java',
+  'Rust',
+  'Ruby',
+  'Elixir',
+  'PHP',
+  'CSharp'
 ]);
 
 export type LanguagePreference = z.infer<typeof LanguagePreferenceSchema>;
@@ -54,7 +59,12 @@ export const DatabasePreferenceSchema = z.enum([
   'PostgreSQL',
   'MongoDB',
   'SQLite',
-  'Redis'
+  'Redis',
+  'MySQL',
+  'Cassandra',
+  'Neo4j',
+  'Qdrant',
+  'DynamoDB'
 ]);
 
 export type DatabasePreference = z.infer<typeof DatabasePreferenceSchema>;
@@ -63,7 +73,12 @@ export const CloudPreferenceSchema = z.enum([
   'AWS',
   'Vercel',
   'Render',
-  'Docker'
+  'Docker',
+  'GCP',
+  'Azure',
+  'Fly.io',
+  'Cloudflare',
+  'Supabase'
 ]);
 
 export type CloudPreference = z.infer<typeof CloudPreferenceSchema>;

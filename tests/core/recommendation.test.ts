@@ -30,7 +30,7 @@ describe('RecommendationService Rules Engine', () => {
     expect(rec.risks).toContain('Microservices are discouraged for teams with only 2 developer(s) due to overhead.');
   });
 
-  it('should recommend Go (Gin) backend when latency is low-latency', () => {
+  it('should recommend Rust (Axum) backend when latency is low-latency', () => {
     const brief: ProjectBrief = {
       product: {
         name: 'High Performance System',
@@ -50,7 +50,7 @@ describe('RecommendationService Rules Engine', () => {
 
     const rec = service.recommend(brief);
 
-    expect(rec.recommendation.backend).toBe('Go (Gin)');
+    expect(rec.recommendation.backend).toBe('Rust (Axum)');
     expect(rec.recommendation.cache).toBe('Redis');
   });
 

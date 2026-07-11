@@ -62,6 +62,12 @@ export function createInitialScores(): ScoringRegistry {
       Redis: 0,
       Memcached: 0
     },
+    aiFramework: {
+      None: 0,
+      LangChain: 0,
+      LlamaIndex: 0,
+      LangGraph: 0
+    },
     deployment: {
       Vercel: 0,
       Render: 0,
@@ -79,6 +85,7 @@ export function createInitialScores(): ScoringRegistry {
       backend: '',
       database: '',
       cache: '',
+      aiFramework: '',
       deployment: ''
     },
     risks: []

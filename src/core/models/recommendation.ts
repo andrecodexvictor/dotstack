@@ -22,6 +22,7 @@ export interface StackRecommendation {
     backend: string;
     database: string;
     cache?: string;
+    aiFramework?: string;
     deployment: string;
   };
   rationale: {
@@ -30,6 +31,7 @@ export interface StackRecommendation {
     backend: string;
     database: string;
     cache?: string;
+    aiFramework?: string;
     deployment: string;
   };
   patterns: PatternReference[];
@@ -42,6 +44,7 @@ export interface ScoringRegistry {
   backend: Record<string, number>;
   database: Record<string, number>;
   cache: Record<string, number>;
+  aiFramework: Record<string, number>;
   deployment: Record<string, number>;
   rationales: Record<string, string>;
   risks: string[];

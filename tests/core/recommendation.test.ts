@@ -111,4 +111,46 @@ describe('RecommendationService Rules Engine', () => {
     expect(patternNames).toContain('Repository Pattern');
     expect(patternNames).toContain('CQRS (Command Query Responsibility Segregation)');
   });
+
+  it('should recommend AI frameworks based on product profile (RAG vs Agents)', () => {
+    const briefRAG: ProjectBrief = {
+      product: {
+        name: 'Smart Document Search AI',
+        type: 'SaaS'
+      },
+      team: {
+        devs: 3,
+        experience: 'intermediate'
+      },
+      requirements: {
+        scale: 'medium',
+        latency: 'normal',
+        availability: 'normal'
+      },
+      constraints: {}
+    };
+
+    const recRAG = service.recommend(briefRAG);
+    expect(recRAG.recommendation.aiFramework).toBe('LlamaIndex');
+
+    const briefAgent: ProjectBrief = {
+      product: {
+        name: 'Autonomous Sales Agent',
+        type: 'SaaS'
+      },
+      team: {
+        devs: 3,
+        experience: 'intermediate'
+      },
+      requirements: {
+        scale: 'medium',
+        latency: 'normal',
+        availability: 'normal'
+      },
+      constraints: {}
+    };
+
+    const recAgent = service.recommend(briefAgent);
+    expect(recAgent.recommendation.aiFramework).toBe('LangGraph');
+  });
 });

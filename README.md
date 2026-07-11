@@ -4,9 +4,20 @@
 [![CI status](https://img.shields.io/badge/CI-passing-success.svg)](https://github.com/andrecodexvictor/dotstack)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**dotstack** is a deterministic, rule-based technology stack recommendation engine built for human developers and AI coding agents. It evaluates project scopes and constraints to deliver optimal architectural selections, complete with curated design patterns, template references, and **offline vector space semantic search**.
+**dotstack** is a deterministic, rule-based technology stack recommendation engine built for human developers and AI coding agents. It evaluates project briefs and constraints to deliver optimal architectural selections, complete with curated design patterns, template references, and **offline vector space semantic search**.
 
 ![dotstack Architecture](./docs/assets/dotstack_architecture_schematic.png)
+
+### 🚀 Supported Technologies & Frameworks
+The scoring engine evaluates and selects from the following platforms:
+- **Frontend (FE)**: React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, SolidJS, Astro.
+- **Backend (BE)**: Node.js (Express, NestJS, Fastify, Hono), Go (Gin, Fiber, Echo), Python (FastAPI, Django, Flask), Rust (Axum, Actix-web), Ruby on Rails, Elixir (Phoenix), PHP (Laravel, Symfony), Java (Spring Boot), Kotlin (Ktor), C# (ASP.NET Core).
+- **AI & LLM Orchestration**: LangChain, LlamaIndex, LangGraph.
+- **Database (DB)**: PostgreSQL, MongoDB, SQLite, MySQL, Cassandra, Neo4j, DynamoDB, Qdrant (AI vector search & RAG).
+- **Caching**: Redis, Memcached, None.
+- **DevOps & Cloud**: AWS, GCP, Azure, Vercel, Render, Fly.io (edge), Cloudflare Workers, Supabase, Docker.
+
+---
 
 Instead of re-teaching every AI coding tool your project's architectural decisions from scratch, `dotstack` provides a durable, tool-agnostic stack configuration layer. 
 
@@ -28,12 +39,11 @@ By exposing a native **Model Context Protocol (MCP) server** and an **offline se
 ### Path 1: Agent & IDE Integration via MCP (Recommended)
 Use this path to automatically register the `dotstack` tools in your AI editors.
 
-1. **Build and install MCP server**:
-   ```bash
-   npm run build
-   npx dotstack mcp install
-   ```
-   *This automatically detects your system configuration and registers the `dotstack` MCP server in **Cursor** and **Claude Desktop**.*
+You can install `dotstack` as an MCP server globally with a single command:
+```bash
+npx -y dotstack@latest mcp install
+```
+*This command downloads the latest version of `dotstack`, automatically scans your local editor setups (Cursor and Claude Desktop), and registers the MCP server configuration for them.*
 
 2. **Manual Configuration for Specific Agents**:
    If you prefer manual configuration, reference the setups below replacing `/absolute/path/to/dotstack/` with your local installation directory:

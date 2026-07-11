@@ -6,6 +6,7 @@ import { FrontendRule } from '../rules/frontend.rule.js';
 import { BackendRule } from '../rules/backend.rule.js';
 import { DatabaseRule } from '../rules/database.rule.js';
 import { CloudRule } from '../rules/cloud.rule.js';
+import { AiRule } from '../rules/ai.rule.js';
 import { getPatternsForStack } from '../registry/patterns.js';
 
 export class RecommendationService {
@@ -14,7 +15,8 @@ export class RecommendationService {
     new FrontendRule(),
     new BackendRule(),
     new DatabaseRule(),
-    new CloudRule()
+    new CloudRule(),
+    new AiRule()
   ];
 
   public recommend(rawBrief: unknown): StackRecommendation {
@@ -35,6 +37,7 @@ export class RecommendationService {
     let backend = this.getWinner(registry.backend);
     let database = this.getWinner(registry.database);
     const cache = this.getWinner(registry.cache);
+    let aiFramework = this.getWinner(registry.aiFramework);
     let deployment = this.getWinner(registry.deployment);
 
     // 5. Apply User Constraints (Overrides)
@@ -71,6 +74,13 @@ export class RecommendationService {
       registry.rationales.deployment = `Cloud hosting target forced to ${deployment} due to constraint preference.`;
     }
 
+    // Constraint: AI Framework Override
+    if (brief.constraints.aiFramework) {
+      const ai = brief.constraints.aiFramework;
+      aiFramework = Object.keys(registry.aiFramework).find(key => key.toLowerCase().includes(ai.toLowerCase())) || ai;
+      registry.rationales.aiFramework = `AI framework forced to ${aiFramework} due to constraint preference.`;
+    }
+
     // 6. Match Patterns & Templates
     const patterns = getPatternsForStack(backend, database, archStyle);
 
@@ -86,6 +96,7 @@ export class RecommendationService {
         backend: backend,
         database: database,
         cache: cache !== 'None' ? cache : undefined,
+        aiFramework: aiFramework !== 'None' ? aiFramework : undefined,
         deployment: deployment
       },
       rationale: {
@@ -94,6 +105,7 @@ export class RecommendationService {
         backend: registry.rationales.backend || 'Selected based on scale and language constraints.',
         database: registry.rationales.database || 'Selected based on integrity and storage requirements.',
         cache: cache !== 'None' ? registry.rationales.cache : undefined,
+        aiFramework: aiFramework !== 'None' ? registry.rationales.aiFramework : undefined,
         deployment: registry.rationales.deployment || 'Selected based on team capability and target cloud.'
       },
       patterns: patterns,

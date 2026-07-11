@@ -13,7 +13,7 @@ Input parameters are defined inside `dotstack-project.yaml` and validated using 
 - **Scale Requirements**: `low`, `medium`, `high`
 - **Latency Budgets**: `normal`, `low-latency`
 - **Availability Needs**: `normal`, `high-availability`
-- **Constraint Overrides**: `language` (TypeScript, Python, Go, Java), `database` (PostgreSQL, MongoDB, SQLite, Redis), `cloud` (AWS, Vercel, Render, Docker), and `budget` (numeric budget in USD).
+- **Constraint Overrides**: `language` (TypeScript, Python, Go, Java), `database` (PostgreSQL, MongoDB, SQLite, Redis, MySQL, Cassandra, Neo4j, Qdrant, DynamoDB), `cloud` (AWS, Vercel, Render, Docker, GCP, Azure, Fly.io, Cloudflare, Supabase), `aiFramework` (LangChain, LlamaIndex, LangGraph), and `budget` (numeric budget in USD).
 
 ---
 
@@ -25,3 +25,4 @@ The scoring algorithm mutate values for stack candidates:
 3. **Backend Framework**: Go (Gin) is scored for low-latency; NestJS is default for TypeScript; FastAPI for junior Python; Spring Boot for large-scale enterprise JVM requirements.
 4. **Database & Caching**: SQLite is selected for low-scale/CLI; PostgreSQL for medium-to-high SQL; MongoDB for unstructured data; Redis is added as a cache layer if high scale/low-latency are required.
 5. **Deployment Target**: Render/Vercel are chosen for low budget/small teams; AWS/Docker for high scale with larger teams.
+6. **AI Orchestration Framework**: Recommends `LangGraph` for agentic workloads (cyclic state graphs), `LlamaIndex` for RAG/vector-search engines, and `LangChain` for general chains. Default is `None` for non-AI products.

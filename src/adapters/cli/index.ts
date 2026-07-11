@@ -115,6 +115,9 @@ program
       if (r.cache) {
         printRow('Caching Tier', r.cache, rat.cache || '');
       }
+      if (r.aiFramework) {
+        printRow('AI Orchestrator', r.aiFramework, rat.aiFramework || '');
+      }
       printRow('Deployment Target', r.deployment, rat.deployment);
       console.log(pc.bold(pc.green('====================================================================\n')));
 

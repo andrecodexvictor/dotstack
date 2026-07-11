@@ -83,6 +83,14 @@ export const CloudPreferenceSchema = z.enum([
 
 export type CloudPreference = z.infer<typeof CloudPreferenceSchema>;
 
+export const AiFrameworkPreferenceSchema = z.enum([
+  'LangChain',
+  'LlamaIndex',
+  'LangGraph'
+]);
+
+export type AiFrameworkPreference = z.infer<typeof AiFrameworkPreferenceSchema>;
+
 export const ProjectBriefSchema = z.object({
   product: z.object({
     name: z.string(),
@@ -103,6 +111,7 @@ export const ProjectBriefSchema = z.object({
       language: LanguagePreferenceSchema.optional(),
       database: DatabasePreferenceSchema.optional(),
       cloud: CloudPreferenceSchema.optional(),
+      aiFramework: AiFrameworkPreferenceSchema.optional(),
       budget: z.number().positive().optional()
     }).default({})
   )

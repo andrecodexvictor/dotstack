@@ -75,6 +75,9 @@ export class NodeFileSystemAdapter implements FileSystemPort {
     if (r.cache) {
       md += `| **Caching Tier** | ${r.cache} | ${rat.cache || ''} |\n`;
     }
+    if (r.aiFramework) {
+      md += `| **AI Orchestration** | ${r.aiFramework} | ${rat.aiFramework || ''} |\n`;
+    }
     md += `| **Deployment Target** | ${r.deployment} | ${rat.deployment} |\n\n`;
 
     // Risks & Warnings Section

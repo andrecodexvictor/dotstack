@@ -35,7 +35,70 @@ Use this path to automatically register the `dotstack` tools in your AI editors.
    ```
    *This automatically detects your system configuration and registers the `dotstack` MCP server in **Cursor** and **Claude Desktop**.*
 
-2. **Prompt your AI agent**:
+2. **Manual Configuration for Specific Agents**:
+   If you prefer manual configuration, reference the setups below replacing `/absolute/path/to/dotstack/` with your local installation directory:
+
+   - **Claude Code** (`~/.claude/settings.json`) & **Claude Desktop** (`claude_desktop_config.json`):
+     ```json
+     {
+       "mcpServers": {
+         "dotstack": {
+           "command": "node",
+           "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+         }
+       }
+     }
+     ```
+
+   - **Cursor** (`User/globalStorage/storage.json` under `mcpServers`):
+     ```json
+     "mcpServers": {
+       "dotstack": {
+         "name": "dotstack",
+         "type": "stdio",
+         "command": "node",
+         "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"],
+         "enabled": true
+       }
+     }
+     ```
+
+   - **Codex CLI** (`.codex/config.toml`):
+     ```toml
+     [mcp_servers.dotstack]
+     command = "node"
+     args = ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+     ```
+
+   - **VS Code (GitHub Copilot)** (`settings.json`):
+     ```json
+     "github.copilot.chat.mcp.servers": {
+       "dotstack": {
+         "command": "node",
+         "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+       }
+     }
+     ```
+
+   - **Google Antigravity** (`.agents/plugin.json` or local settings):
+     ```json
+     {
+       "plugins": {
+         "dotstack": {
+           "type": "mcp",
+           "command": "node",
+           "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+         }
+       }
+     }
+     ```
+
+   - **OpenCode CLI**: Connect standard stdio transport using the node command binary path:
+     ```bash
+     opencode mcp add --command "node" --args "/absolute/path/to/dotstack/dist/adapters/cli/index.js,mcp,start"
+     ```
+
+3. **Prompt your AI agent**:
    AI agents can now run stack audits and semantic codebase searches using these tools:
    - `dotstack_init`: Instantiates parameter files.
    - `dotstack_recommend`: Evaluates project briefs and writes recommendation reports.

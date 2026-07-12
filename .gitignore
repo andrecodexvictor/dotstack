@@ -7,7 +7,6 @@ dist/
 
 # Local configuration & recommendations
 dotstack-project.yaml
-.stack/
 .context/dotstack/
 tests/tmp-fs-test/
 

@@ -31,6 +31,8 @@ Instead of re-teaching every AI coding tool your project's architectural decisio
 
 By exposing a native **Model Context Protocol (MCP) server** and an **offline semantic search engine**, agents can automatically read, validate, and search codebases under the target architecture's constraints.
 
+> 🤖 **AI-First & Human-Centric**: Dotstack is built from the ground up as an AI-first architecture layer. It provides a machine-readable context specification (`.stack/stack.yaml`) that AI coding agents (like Claude Code, Cursor, Copilot, Antigravity, etc.) can parse immediately to understand code patterns, architectures, and libraries. It is designed to scale seamlessly from solo developers building Proofs of Concept (PoCs) to full-scale enterprise teams managing large-scale production architectures.
+
 ---
 
 ## What Dotstack Is
@@ -47,14 +49,20 @@ By exposing a native **Model Context Protocol (MCP) server** and an **offline se
 ### Path 1: Agent & IDE Integration via MCP (Recommended)
 Use this path to automatically register the `dotstack` tools in your AI editors.
 
-**One-command automatic setup** — configures Claude Desktop, Claude Code, Cursor, VS Code Copilot, Windsurf, Codex CLI, and a project-level `.mcp.json` all at once:
+**One-command automatic setup** — configures all supported agents and a project-level `.mcp.json` at once:
 ```bash
-npx -y dotstack@latest mcp install
+npx -y dotstack@latest mcp install all
 ```
 
-Or target a specific agent:
+Or target a specific agent interface:
 ```bash
-npx dotstack mcp install claude    # Claude Desktop + Claude Code CLI
+npx dotstack mcp install claude        # Claude Desktop + Claude Code CLI
+npx dotstack mcp install cursor        # Cursor IDE
+npx dotstack mcp install windsurf      # Windsurf Editor
+npx dotstack mcp install vscode        # VS Code / GitHub Copilot Chat
+npx dotstack mcp install antigravity   # Google Antigravity Agent
+npx dotstack mcp install opencode      # OpenCode CLI
+npx dotstack mcp install pi            # PI.dev
 ```
 
 **Available MCP Tools** — once connected, AI agents can call:

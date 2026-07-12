@@ -1,0 +1,20 @@
+# dotstack-project.yaml - Data Platform Configuration example
+product:
+  name: "Big Data Ingestion Pipeline"
+  type: "API"
+
+team:
+  devs: 5
+  experience: "senior"
+
+requirements:
+  scale: "high"
+  latency: "normal"
+  availability: "high-availability"
+
+productSubtype: "data-platform"
+realTime: true
+haRequirements: "critical"
+
+constraints:
+  language: "Go"

@@ -51,7 +51,7 @@ export class BackendRule implements Rule {
     }
 
     // 3. Fast Prototyping for Solo/Duo Developers (Rapid MVC)
-    if (devs <= 2 && (brief.product.type === 'SaaS' || brief.product.type === 'WebApp')) {
+    if (devs <= 2 && (brief.product.type === 'SaaS' || brief.product.type === 'WebApp') && scale !== 'high') {
       registry.backend['Ruby (Ruby on Rails)'] += 55;
       registry.backend['PHP (Laravel)'] += 50;
       registry.backend['Python (Django)'] += 35;

@@ -10,3 +10,7 @@ export { ConsoleLoggerAdapter } from './adapters/logger/console-logger.adapter.j
 export { SemanticSearchService } from './core/services/semantic-search.service.js';
 export { startMcpServer } from './adapters/mcp/mcp.adapter.js';
 export { installMcpServer } from './adapters/cli/mcp-installer.js';
+export { AuditEngine } from './core/audit/index.js';
+export { MigrationPlanner } from './core/migrate/index.js';
+export * from './core/report/index.js';
+

@@ -117,6 +117,18 @@ Contains all the core rules and logic. It has zero external dependencies other t
 - **Pattern Registry (`src/core/registry`)**:
   A static database cataloging design patterns, descriptions, reference links (RefactoringGuru, GitHub Topics), and curated GitHub boilerplates/templates for different stack configurations.
 
+- **Audit Engine (`src/core/audit`)**:
+  An analysis engine that scans project workspace dependency trees and configurations, compares actual technologies to recommendations, and scores stack alignment.
+
+- **Migration Planner (`src/core/migrate`)**:
+  Generates phased blueprints to migrate from current to target stack architectures, estimating hours and assessing potential risks.
+
+- **Report Generator (`src/core/report`)**:
+  Compiles complete Architecture Decision Records (ADRs) and stack metrics in both JSON and Markdown formats.
+
+- **Semantic Search Backends (`src/core/services/semantic-search.service`)**:
+  Exposes a pluggable `SearchBackend` interface enabling both the offline `TFIDFBackend` and potential future `EmbeddingsBackend` vector search algorithms.
+
 ### B. Ports (`src/core/ports`)
 Interfaces that define how the core interacts with the outside world.
 
@@ -135,7 +147,7 @@ Realizations of the ports for specific runtime environments.
   3. If absent, write output to `.stack/`.
   
 - **`CLI Adapter (Commander)`**:
-  The orchestrator of the CLI application. Resolves the CLI options, instantiates the `NodeFileSystemAdapter` and `ConsoleLoggerAdapter`, invokes the `RecommendationService` from the core domain, and triggers writing output files.
+  The orchestrator of the CLI application. Resolves the CLI options, instantiates the `NodeFileSystemAdapter` and `ConsoleLoggerAdapter`, invokes the `RecommendationService` from the core domain, and triggers writing output files. Supports dry-runs, custom formatting (json, markdown), and custom outputs.
 
 ---
 
@@ -144,8 +156,10 @@ Realizations of the ports for specific runtime environments.
 To allow future MCP servers or other developer packages to import `dotstack` directly without running the CLI, the entrypoint `src/index.ts` exposes a clean programmatic API:
 
 ```typescript
-import { RecommendationService } from './core/services/recommendation.service';
-import { ProjectBrief } from './core/models/brief';
+import { RecommendationService } from './core/services/recommendation.service.js';
+import { ProjectBrief } from './core/models/brief.js';
+import { AuditEngine } from './core/audit/index.js';
+import { MigrationPlanner } from './core/migrate/index.js';
 
 // Programmatic recommend API
 export function getStackRecommendation(brief: ProjectBrief) {

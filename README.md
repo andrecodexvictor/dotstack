@@ -3,19 +3,27 @@
 [![npm version](https://img.shields.io/badge/npm-1.0.0-blue.svg)](https://www.npmjs.com/)
 [![CI status](https://img.shields.io/badge/CI-passing-success.svg)](https://github.com/andrecodexvictor/dotstack)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Coverage Target](https://img.shields.io/badge/Coverage-%E2%89%A580%25-success.svg)](https://github.com/andrecodexvictor/dotstack)
 
 **dotstack** is a deterministic, rule-based technology stack recommendation engine built for human developers and AI coding agents. It evaluates project briefs and constraints to deliver optimal architectural selections, complete with curated design patterns, template references, and **offline vector space semantic search**.
 
 ![dotstack Architecture](docs/assets/dotstack_architecture_schematic.png)
 
 ### 🚀 Supported Technologies & Frameworks
-The scoring engine evaluates and selects from the following platforms:
-- **Frontend (FE)**: React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, SolidJS, Astro.
-- **Backend (BE)**: Node.js (Express, NestJS, Fastify, Hono), Go (Gin, Fiber, Echo), Python (FastAPI, Django, Flask), Rust (Axum, Actix-web), Ruby on Rails, Elixir (Phoenix), PHP (Laravel, Symfony), Java (Spring Boot), Kotlin (Ktor), C# (ASP.NET Core).
-- **AI & LLM Orchestration**: LangChain, LlamaIndex, LangGraph.
-- **Database (DB)**: PostgreSQL, MongoDB, SQLite, MySQL, Cassandra, Neo4j, DynamoDB, Qdrant (AI vector search & RAG).
-- **Caching**: Redis, Memcached, None.
-- **DevOps & Cloud**: AWS, GCP, Azure, Vercel, Render, Fly.io (edge), Cloudflare Workers, Supabase, Docker.
+The scoring engine evaluates and selects from the following platforms across **13 categories**:
+- **Frontend (FE)**: React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, SolidJS, Astro, Remix, Qwik.
+- **Backend (BE)**: Node.js (Express, NestJS, Fastify, Hono), Go (Gin, Fiber, Echo), Python (FastAPI, Django, Flask), Rust (Axum, Actix-web), Ruby on Rails, Elixir (Phoenix), PHP (Laravel, Symfony), Java (Spring Boot), Kotlin (Ktor), C# (ASP.NET Core), Scala (Play Framework).
+- **AI & LLM Orchestration**: LangChain, LlamaIndex, LangGraph, CrewAI, AutoGen, Vector DBs (Qdrant, Pinecone, Weaviate, Chroma, pgvector).
+- **Database (DB)**: PostgreSQL, MySQL, SQLite, MongoDB, Cassandra, Neo4j, DynamoDB, MariaDB, CockroachDB, Amazon Aurora, AWS RDS, GCP Cloud SQL, Google Spanner, Azure SQL, CosmosDB, Firestore, Supabase, PlanetScale, Neon, TiDB.
+- **Caching**: Redis, Memcached, Varnish, CDNs.
+- **Observability**: OpenTelemetry, Prometheus, Grafana, Loki, Sentry, Datadog, New Relic, AWS CloudWatch, ELK.
+- **Messaging & Queueing**: Apache Kafka, RabbitMQ, NATS, AWS SQS, Google Pub/Sub, Redis Streams, Amazon Kinesis, EventBridge.
+- **Testing**: Vitest, Jest, Pytest, JUnit, k6, Locust, Playwright, Cypress, Pact.
+- **Auth / IDaaS**: Auth0, Keycloak, Supabase Auth, AWS Cognito, Firebase Auth, Clerk, NextAuth.js.
+- **Security & DevSecOps**: Semgrep, SonarQube, Trivy, Snyk, Dependabot, HashiCorp Vault, AWS KMS, AWS WAF.
+- **Orchestration**: Kubernetes, Docker Compose, AWS ECS/Fargate, Cloud Run, App Runner, Nomad.
+- **Mobile & Desktop**: React Native, Flutter, SwiftUI, Jetpack Compose, .NET MAUI, Expo, Capacitor, Tauri, Electron.
+- **DevOps & Cloud**: AWS, GCP, Azure, Vercel, Render, Fly.io, Cloudflare, Supabase, Railway.
 
 ---
 
@@ -47,133 +55,16 @@ npx -y dotstack@latest mcp install
 Or target a specific agent:
 ```bash
 npx dotstack mcp install claude    # Claude Desktop + Claude Code CLI
-npx dotstack mcp install cursor    # Cursor
-npx dotstack mcp install vscode    # VS Code / GitHub Copilot
-npx dotstack mcp install windsurf  # Windsurf (Codeium)
-npx dotstack mcp install codex     # Codex CLI (OpenAI)
-npx dotstack mcp install all       # All of the above + project .mcp.json
 ```
-
-**Manual Configuration** — if you prefer to configure agents by hand, replace `/absolute/path/to/dotstack/` with your local installation directory:
-
-<details>
-<summary><strong>Claude Code</strong> (<code>~/.claude.json</code>) & <strong>Claude Desktop</strong> (<code>claude_desktop_config.json</code>)</summary>
-
-```json
-{
-  "mcpServers": {
-    "dotstack": {
-      "command": "node",
-      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>Cursor</strong> (<code>storage.json</code> under <code>mcpServers</code>)</summary>
-
-```json
-"mcpServers": {
-  "dotstack": {
-    "name": "dotstack",
-    "type": "stdio",
-    "command": "node",
-    "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"],
-    "enabled": true
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>VS Code / GitHub Copilot</strong> (<code>settings.json</code>)</summary>
-
-```json
-"github.copilot.chat.mcp.servers": {
-  "dotstack": {
-    "command": "node",
-    "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>Windsurf</strong> (<code>mcp_config.json</code>)</summary>
-
-```json
-{
-  "mcpServers": {
-    "dotstack": {
-      "command": "node",
-      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>Codex CLI</strong> (<code>~/.codex/config.json</code>)</summary>
-
-```json
-{
-  "mcp_servers": {
-    "dotstack": {
-      "command": "node",
-      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>Google Antigravity</strong> (<code>.agents/plugin.json</code>)</summary>
-
-```json
-{
-  "plugins": {
-    "dotstack": {
-      "type": "mcp",
-      "command": "node",
-      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><strong>OpenCode CLI</strong></summary>
-
-```bash
-opencode mcp add --command "node" --args "/absolute/path/to/dotstack/dist/adapters/cli/index.js,mcp,start"
-```
-</details>
-
-<details>
-<summary><strong>PI.dev</strong> (via project-level <code>.mcp.json</code>)</summary>
-
-```json
-{
-  "mcpServers": {
-    "dotstack": {
-      "command": "node",
-      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-    }
-  }
-}
-```
-</details>
 
 **Available MCP Tools** — once connected, AI agents can call:
 - `dotstack_init`: Instantiates parameter files.
 - `dotstack_recommend`: Evaluates project briefs and writes recommendation reports.
 - `dotstack_patterns`: Resolves design pattern guidelines and templates.
 - `dotstack_semantic_search`: Performs offline vector space searches over code chunks.
+- `dotstack_audit`: Scans workspace dependency configuration files and checks alignment.
+- `dotstack_migrate`: Generates step-by-step custom migration blueprints.
+- `dotstack_docs`: Compiles Architecture Decision Records (ADRs) programmatically.
 
 ---
 
@@ -228,6 +119,10 @@ Generates a template `dotstack-project.yaml` parameter file.
 Analyzes parameters, logs risk alerts (e.g. over-engineering flags), and writes output reports.
 - `-f, --file <path>`: Path to project brief configuration (default: `dotstack-project.yaml`).
 - `-r, --root <path>`: Project workspace root path for output routing (default: `.`).
+- `--format <type>`: Output format of the report (text, json, markdown). Default is text.
+- `--verbose`: Enable verbose configuration logs.
+- `--dry-run`: Evaluate recommendations without writing files to disk.
+- `-o, --output <path>`: Save report output to custom location.
 
 ### `dotstack search <query>`
 Scans codebases and runs local TF-IDF token vector cosine similarity matching.
@@ -245,7 +140,7 @@ Automatically registers the stdio MCP server in local Cursor and/or Claude Deskt
 
 ## SDK / Programmatic API Usage
 
-Because `dotstack` isolates its Core Domain via Ports and Adapters, you can import and run the rules engine or the semantic search indexer in browsers, serverless functions, or custom extensions:
+Because `dotstack` isolates its Core Domain via Ports and Adapters, you can import and run the rules engine, migration planner, stack auditor, or the semantic search indexer in browsers, serverless functions, or custom extensions:
 
 ```typescript
 import { RecommendationService, SemanticSearchService } from 'dotstack';

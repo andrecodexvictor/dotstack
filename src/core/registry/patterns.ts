@@ -140,10 +140,116 @@ export const PATTERN_DATABASE: Record<string, PatternReference> = {
         description: 'Starter project demonstrating component-based islands architecture using React/Svelte/Vue.'
       }
     ]
+  },
+  eventSourcing: {
+    name: 'Event Sourcing',
+    description: 'Guarantees that all changes to application state are stored as a sequence of events, ensuring auditability and historical reconstruction.',
+    referenceUrl: 'https://microservices.io/patterns/data/event-sourcing.html',
+    examples: [
+      {
+        name: 'EventStoreDB Examples',
+        url: 'https://github.com/EventStore/EventStore',
+        description: 'Operational database designed specifically for Event Sourcing and Event-Driven Architectures.'
+      }
+    ]
+  },
+  outboxPattern: {
+    name: 'Transactional Outbox Pattern',
+    description: 'Solves the dual-write problem in distributed systems by committing database changes and events inside the same transaction.',
+    referenceUrl: 'https://microservices.io/patterns/data/transactional-outbox.html',
+    examples: [
+      {
+        name: 'Debezium Outbox Example',
+        url: 'https://github.com/debezium/debezium-examples',
+        description: 'Demonstrates change data capture (CDC) from an outbox table using Kafka Connect.'
+      }
+    ]
+  },
+  sagaPattern: {
+    name: 'Saga Pattern',
+    description: 'Manages distributed transactions across multiple microservices using a sequence of local transactions and compensating actions.',
+    referenceUrl: 'https://microservices.io/patterns/data/saga.html',
+    examples: [
+      {
+        name: 'Temporal.io Workflows',
+        url: 'https://github.com/temporalio/samples-typescript',
+        description: 'Showcases robust distributed transaction orchestration using Temporal workflow definitions.'
+      }
+    ]
+  },
+  stranglerFig: {
+    name: 'Strangler Fig Pattern',
+    description: 'Safely migrates legacy codebases to new architectures by incrementally replacing specific endpoints or features with new implementations behind a gateway.',
+    referenceUrl: 'https://martinfowler.com/bliki/StranglerFigApplication.html',
+    examples: [
+      {
+        name: 'Nginx API Gateway Skel',
+        url: 'https://github.com/nginxinc/kubernetes-ingress',
+        description: 'API routing routing setup demonstrating traffic splitting between legacy VMs and new containers.'
+      }
+    ]
+  },
+  bff: {
+    name: 'Backend For Frontend (BFF) Pattern',
+    description: 'Creates a custom API layer tailored specifically for unique clients (e.g. Mobile app vs Desktop Web) to aggregate API payloads and minimize network latency.',
+    referenceUrl: 'https://samnewman.io/patterns/architectural/bff/',
+    examples: [
+      {
+        name: 'Apollo GraphQL Gateway',
+        url: 'https://github.com/apollographql/supergraph-demo',
+        description: 'Consolidates underlying microservice APIs into client-optimized GraphQL queries.'
+      }
+    ]
+  },
+  sidecar: {
+    name: 'Sidecar and Ambassador Patterns',
+    description: 'Deploys auxiliary helper containers alongside the main application pod to handle cross-cutting concerns like logging, service mesh mTLS, and network proxies.',
+    referenceUrl: 'https://learn.microsoft.com/en-us/azure/architecture/patterns/sidecar',
+    examples: [
+      {
+        name: 'Envoy Proxy configurations',
+        url: 'https://github.com/envoyproxy/envoy',
+        description: 'Demonstrates sidecar traffic filtering, circuit breaking, and load balancing.'
+      }
+    ]
+  },
+  circuitBreaker: {
+    name: 'Circuit Breaker Pattern',
+    description: 'Prevents cascading failures in distributed systems by immediately failing remote calls when the downstream service is unhealthy, allowing it to recover.',
+    referenceUrl: 'https://martinfowler.com/bliki/CircuitBreaker.html',
+    examples: [
+      {
+        name: 'Hystrix / Polly resilience',
+        url: 'https://github.com/App-vNext/Polly',
+        description: 'Examples of Circuit Breaker, Bulkhead, and Retry patterns implemented in .NET.'
+      }
+    ]
+  },
+  zeroTrust: {
+    name: 'Zero Trust Architecture',
+    description: 'Removes implicit trust, requiring continuous validation, transport encryption (mTLS), and least-privilege role bindings at every service boundary.',
+    referenceUrl: 'https://www.nist.gov/publications/zero-trust-architecture',
+    examples: [
+      {
+        name: 'Spire / SPIFFE auth',
+        url: 'https://github.com/spiffe/spire',
+        description: 'Implements SPIFFE Zero Trust identity issuance and transport verification.'
+      }
+    ]
   }
 };
 
-export function getPatternsForStack(backend: string, database: string, archStyle: string): PatternReference[] {
+export function getPatternsForStack(
+  backend: string,
+  database: string,
+  archStyle: string,
+  additionalInfo?: {
+    hasMessaging?: boolean;
+    hasKubernetes?: boolean;
+    isMobile?: boolean;
+    isHardened?: boolean;
+  }
+): PatternReference[] {
   const patterns: PatternReference[] = [];
 
   // Match Clean Arch
@@ -152,12 +258,12 @@ export function getPatternsForStack(backend: string, database: string, archStyle
   }
 
   // Match Repository Pattern
-  if (database === 'PostgreSQL' || database === 'MongoDB' || database === 'MySQL') {
+  if (database.includes('PostgreSQL') || database.includes('MongoDB') || database.includes('MySQL') || database.includes('Aurora')) {
     patterns.push(PATTERN_DATABASE.repository);
   }
 
   // Match CQRS
-  if (backend.includes('NestJS') || backend.includes('Spring Boot') || backend.includes('ASP.NET')) {
+  if (backend.includes('NestJS') || backend.includes('Spring Boot') || backend.includes('ASP.NET') || archStyle === 'Microservices') {
     patterns.push(PATTERN_DATABASE.cqrs);
   }
 
@@ -187,7 +293,7 @@ export function getPatternsForStack(backend: string, database: string, archStyle
   }
 
   // AI RAG loops
-  if (database === 'Qdrant') {
+  if (database.includes('Qdrant') || database.includes('Pinecone') || database.includes('Weaviate')) {
     patterns.push(PATTERN_DATABASE.ragPattern);
   }
 
@@ -196,10 +302,43 @@ export function getPatternsForStack(backend: string, database: string, archStyle
     patterns.push(PATTERN_DATABASE.islandsArch);
   }
 
+  // Event Driven Patterns
+  if (additionalInfo?.hasMessaging || archStyle === 'Microservices') {
+    patterns.push(PATTERN_DATABASE.eventSourcing);
+    patterns.push(PATTERN_DATABASE.outboxPattern);
+    patterns.push(PATTERN_DATABASE.sagaPattern);
+  }
+
+  // Sidecar for Kubernetes
+  if (additionalInfo?.hasKubernetes) {
+    patterns.push(PATTERN_DATABASE.sidecar);
+  }
+
+  // Mobile patterns (BFF)
+  if (additionalInfo?.isMobile) {
+    patterns.push(PATTERN_DATABASE.bff);
+  }
+
+  // Circuit Breaker for Microservices or Low Latency
+  if (archStyle === 'Microservices' || additionalInfo?.hasMessaging) {
+    patterns.push(PATTERN_DATABASE.circuitBreaker);
+  }
+
+  // Zero Trust for hardened setups
+  if (additionalInfo?.isHardened) {
+    patterns.push(PATTERN_DATABASE.zeroTrust);
+  }
+
   // Deduplicate and fallback
   if (patterns.length === 0) {
     patterns.push(PATTERN_DATABASE.cleanArch);
   }
 
-  return patterns;
+  // Standard de-duplication by name
+  const seen = new Set<string>();
+  return patterns.filter(p => {
+    if (seen.has(p.name)) return false;
+    seen.add(p.name);
+    return true;
+  });
 }

@@ -1,0 +1,19 @@
+# dotstack-project.yaml - Startup MVP Configuration example
+product:
+  name: "Rapid ECommerce Portal MVP"
+  type: "SaaS"
+
+team:
+  devs: 1
+  experience: "junior"
+
+requirements:
+  scale: "low"
+  latency: "normal"
+  availability: "normal"
+
+productSubtype: "ecommerce"
+realTime: false
+
+constraints:
+  budget: 50

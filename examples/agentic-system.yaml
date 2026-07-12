@@ -1,0 +1,24 @@
+# dotstack-project.yaml - Agentic System Configuration example
+product:
+  name: "Autonomous AI Agent Sales Graph"
+  type: "SaaS"
+
+team:
+  devs: 3
+  experience: "intermediate"
+
+requirements:
+  scale: "medium"
+  latency: "normal"
+  availability: "normal"
+
+productSubtype: "agentic-system"
+realTime: true
+security:
+  level: "standard"
+  encryption: false
+  secretsManagement: true
+
+constraints:
+  language: "Python"
+  database: "Qdrant"

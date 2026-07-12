@@ -11,15 +11,27 @@ export class ArchitectureRule implements Rule {
     const scale = brief.requirements.scale;
 
     if (devs < 6) {
-      registry.architectureStyle['Monolith'] += 50;
-      registry.architectureStyle['Modular Monolith'] += 30;
-      registry.architectureStyle['Microservices'] -= 100;
-      
-      registry.risks.push(
-        `Microservices are discouraged for teams with only ${devs} developer(s) due to overhead.`
-      );
-      registry.rationales.architectureStyle = 
-        `Monolith chosen because the team is small (${devs} dev(s)). Minimizes infrastructure and synchronization overhead.`;
+      if (scale === 'high') {
+        registry.architectureStyle['Modular Monolith'] += 50;
+        registry.architectureStyle['Monolith'] += 20;
+        registry.architectureStyle['Microservices'] -= 100;
+
+        registry.risks.push(
+          `Microservices are discouraged for teams with only ${devs} developer(s) due to overhead.`
+        );
+        registry.rationales.architectureStyle = 
+          `Modular Monolith chosen to support high scaling and clean modular boundaries for a small team (${devs} dev(s)).`;
+      } else {
+        registry.architectureStyle['Monolith'] += 50;
+        registry.architectureStyle['Modular Monolith'] += 30;
+        registry.architectureStyle['Microservices'] -= 100;
+
+        registry.risks.push(
+          `Microservices are discouraged for teams with only ${devs} developer(s) due to overhead.`
+        );
+        registry.rationales.architectureStyle = 
+          `Monolith chosen because the team is small (${devs} dev(s)). Minimizes infrastructure and synchronization overhead.`;
+      }
     } else {
       if (scale === 'high') {
         registry.architectureStyle['Microservices'] += 40;

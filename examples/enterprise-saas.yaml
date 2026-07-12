@@ -1,0 +1,30 @@
+# dotstack-project.yaml - Enterprise SaaS Configuration example
+product:
+  name: "Enterprise SaaS Platform"
+  type: "SaaS"
+
+team:
+  devs: 8
+  experience: "senior"
+
+requirements:
+  scale: "high"
+  latency: "normal"
+  availability: "high-availability"
+
+productSubtype: "saas"
+compliance:
+  - "gdpr"
+  - "pci"
+dataResidency: "eu"
+multiTenant: true
+realTime: false
+haRequirements: "high"
+security:
+  level: "hardened"
+  encryption: true
+  secretsManagement: true
+
+constraints:
+  language: "TypeScript"
+  cloud: "AWS"

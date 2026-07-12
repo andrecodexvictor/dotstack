@@ -9,6 +9,10 @@ import {
 import { RecommendationService } from '../../core/services/recommendation.service.js';
 import { NodeFileSystemAdapter } from '../fs/node-fs.adapter.js';
 import { SemanticSearchService } from '../../core/services/semantic-search.service.js';
+import { AuditEngine } from '../../core/audit/index.js';
+import { MigrationPlanner } from '../../core/migrate/index.js';
+import { generateMarkdownReport } from '../../core/report/index.js';
+import { ProjectBrief } from '../../core/models/brief.js';
 import path from 'path';
 import fs from 'fs/promises';
 
@@ -126,6 +130,58 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
             query: { type: 'string', description: 'The search query string (e.g. "database connection", "cli command options")' },
             projectRoot: { type: 'string', description: 'Absolute path to codebase root directory. Defaults to current directory.' },
             topK: { type: 'integer', description: 'Maximum number of ranked matching snippets to return. Defaults to 5.', default: 5 }
+          }
+        }
+      },
+      {
+        name: 'dotstack_audit',
+        description: 'Scan workspace dependencies and configuration files, then compare actual technologies against the recommended stack.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            projectRoot: { type: 'string', description: 'Absolute path to codebase root directory. Defaults to current directory.' }
+          }
+        }
+      },
+      {
+        name: 'dotstack_migrate',
+        description: 'Generate a step-by-step migration blueprint from a current stack configuration to a target stack.',
+        inputSchema: {
+          type: 'object',
+          required: ['currentStack', 'targetStack'],
+          properties: {
+            currentStack: {
+              type: 'object',
+              description: 'Key-value map of current technologies (e.g. backend, database, frontend)',
+              properties: {
+                frontend: { type: 'string' },
+                backend: { type: 'string' },
+                database: { type: 'string' }
+              }
+            },
+            targetStack: {
+              type: 'object',
+              description: 'Key-value map of target technologies (e.g. backend, database, frontend)',
+              properties: {
+                frontend: { type: 'string' },
+                backend: { type: 'string' },
+                database: { type: 'string' }
+              }
+            }
+          }
+        }
+      },
+      {
+        name: 'dotstack_docs',
+        description: 'Compile an Architecture Decision Record (ADR) report from a project brief configuration.',
+        inputSchema: {
+          type: 'object',
+          required: ['brief'],
+          properties: {
+            brief: {
+              type: 'object',
+              description: 'The raw brief parameters object containing product, team, requirements, and constraints.'
+            }
           }
         }
       }
@@ -265,6 +321,79 @@ constraints: {}
             {
               type: 'text',
               text: report
+            }
+          ]
+        };
+      }
+
+      case 'dotstack_audit': {
+        const auditEngine = new AuditEngine();
+        let brief;
+        try {
+          brief = await fileSystem.readBrief(path.join(projectRoot, 'dotstack-project.yaml'));
+        } catch {
+          brief = {
+            product: { name: 'Audited App', type: 'SaaS' },
+            team: { devs: 3, experience: 'intermediate' },
+            requirements: { scale: 'medium' },
+            constraints: {}
+          };
+        }
+        const recommendation = recommendationService.recommend(brief);
+        const auditResult = await auditEngine.audit(projectRoot, recommendation);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `### Stack Audit Alignment: ${auditResult.alignmentScore}%\n\n` +
+                    `#### Detected Stack:\n${JSON.stringify(auditResult.detected, null, 2)}\n\n` +
+                    `#### Divergences (${auditResult.divergences.length}):\n` +
+                    (auditResult.divergences.length > 0 
+                      ? auditResult.divergences.map(d => `- **[${d.severity.toUpperCase()}] ${d.category}**: ${d.details} (Recommended: ${d.recommended})`).join('\n')
+                      : 'None! Stack is perfectly aligned.')
+            }
+          ]
+        };
+      }
+
+      case 'dotstack_migrate': {
+        const currentStack = args?.currentStack as Record<string, string>;
+        const targetStack = args?.targetStack as Record<string, string>;
+        if (!currentStack || !targetStack) {
+          throw new McpError(ErrorCode.InvalidParams, 'Missing parameters: currentStack or targetStack');
+        }
+        const planner = new MigrationPlanner();
+        const migrationPlan = planner.plan(currentStack, targetStack);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `### Phased Migration Blueprint\n\n` +
+                    `- **Estimated Duration**: ${migrationPlan.totalEstimatedWeeks} week(s)\n` +
+                    `- **Overall Risk**: ${migrationPlan.overallRisk.toUpperCase()}\n\n` +
+                    (migrationPlan.phases.length > 0
+                      ? migrationPlan.phases.map(p => 
+                          `#### ${p.name}\n_${p.description}_\n` +
+                          p.tasks.map(t => `- [ ] **${t.title}** (Effort: ${t.effort}, ${t.estimatedHours}h)\n  _${t.description}_`).join('\n')
+                        ).join('\n\n')
+                      : 'No migration tasks needed. Stack configs match.')
+            }
+          ]
+        };
+      }
+
+      case 'dotstack_docs': {
+        const brief = args?.brief as ProjectBrief;
+        if (!brief) {
+          throw new McpError(ErrorCode.InvalidParams, 'Missing parameter: brief');
+        }
+        const recommendation = recommendationService.recommend(brief);
+        const mdReport = generateMarkdownReport(recommendation, brief, false);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: mdReport
             }
           ]
         };

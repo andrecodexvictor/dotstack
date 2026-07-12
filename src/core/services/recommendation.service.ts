@@ -7,6 +7,7 @@ import { BackendRule } from '../rules/backend.rule.js';
 import { DatabaseRule } from '../rules/database.rule.js';
 import { CloudRule } from '../rules/cloud.rule.js';
 import { AiRule } from '../rules/ai.rule.js';
+import { ExpandedRule } from '../rules/expanded.rule.js';
 import { getPatternsForStack } from '../registry/patterns.js';
 
 export class RecommendationService {
@@ -16,7 +17,8 @@ export class RecommendationService {
     new BackendRule(),
     new DatabaseRule(),
     new CloudRule(),
-    new AiRule()
+    new AiRule(),
+    new ExpandedRule()
   ];
 
   public recommend(rawBrief: unknown): StackRecommendation {
@@ -39,6 +41,13 @@ export class RecommendationService {
     const cache = this.getWinner(registry.cache);
     let aiFramework = this.getWinner(registry.aiFramework);
     let deployment = this.getWinner(registry.deployment);
+    const observability = this.getWinner(registry.observability);
+    const messaging = this.getWinner(registry.messaging);
+    const testing = this.getWinner(registry.testing);
+    const auth = this.getWinner(registry.auth);
+    const security = this.getWinner(registry.security);
+    const orchestration = this.getWinner(registry.orchestration);
+    const mobile = this.getWinner(registry.mobile);
 
     // 5. Apply User Constraints (Overrides)
     
@@ -82,9 +91,24 @@ export class RecommendationService {
     }
 
     // 6. Match Patterns & Templates
-    const patterns = getPatternsForStack(backend, database, archStyle);
+    const patterns = getPatternsForStack(backend, database, archStyle, {
+      hasMessaging: messaging !== 'None',
+      hasKubernetes: orchestration.includes('Kubernetes'),
+      isMobile: brief.product.type === 'MobileApp',
+      isHardened: brief.security?.level === 'hardened'
+    });
 
-    // 7. Format Output
+    // 7. Format Output & Post-Resolution Risk Flags
+    if (observability === 'None') {
+      registry.risks.push('No observability stack detected — HIGH RISK');
+    }
+    if (auth === 'None' && brief.product.type !== 'CLI' && brief.product.type !== 'InternalTool') {
+      registry.risks.push('No auth/security layer — WARNING');
+    }
+    if (orchestration === 'Kubernetes (EKS/GKE/AKS)' && brief.team.devs <= 2) {
+      registry.risks.push('Over-engineering alert: K8s for a 2-person MVP');
+    }
+
     return {
       metadata: {
         generatedAt: new Date().toISOString(),
@@ -97,7 +121,14 @@ export class RecommendationService {
         database: database,
         cache: cache !== 'None' ? cache : undefined,
         aiFramework: aiFramework !== 'None' ? aiFramework : undefined,
-        deployment: deployment
+        deployment: deployment,
+        observability: observability !== 'None' ? observability : undefined,
+        messaging: messaging !== 'None' ? messaging : undefined,
+        testing: testing !== 'None' ? testing : undefined,
+        auth: auth !== 'None' ? auth : undefined,
+        security: security !== 'None' ? security : undefined,
+        orchestration: orchestration !== 'None' ? orchestration : undefined,
+        mobile: mobile !== 'None' ? mobile : undefined
       },
       rationale: {
         architectureStyle: registry.rationales.architectureStyle || 'Selected based on scale and team size.',
@@ -106,7 +137,14 @@ export class RecommendationService {
         database: registry.rationales.database || 'Selected based on integrity and storage requirements.',
         cache: cache !== 'None' ? registry.rationales.cache : undefined,
         aiFramework: aiFramework !== 'None' ? registry.rationales.aiFramework : undefined,
-        deployment: registry.rationales.deployment || 'Selected based on team capability and target cloud.'
+        deployment: registry.rationales.deployment || 'Selected based on team capability and target cloud.',
+        observability: observability !== 'None' ? registry.rationales.observability || 'Observability solution selected based on infrastructure.' : undefined,
+        messaging: messaging !== 'None' ? registry.rationales.messaging || 'Messaging queue selected based on scale and patterns.' : undefined,
+        testing: testing !== 'None' ? registry.rationales.testing || 'Testing framework selected based on language and backend.' : undefined,
+        auth: auth !== 'None' ? registry.rationales.auth || 'Auth provider selected based on scale and requirements.' : undefined,
+        security: security !== 'None' ? registry.rationales.security || 'Security tools recommended to meet standard/hardened compliance.' : undefined,
+        orchestration: orchestration !== 'None' ? registry.rationales.orchestration || 'Orchestration stack recommended for runtime environment.' : undefined,
+        mobile: mobile !== 'None' ? registry.rationales.mobile || 'Mobile client framework recommended for the target product type.' : undefined
       },
       patterns: patterns,
       risks: registry.risks

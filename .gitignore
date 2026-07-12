@@ -14,3 +14,6 @@ tests/tmp-fs-test/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Coverage reports
+coverage/

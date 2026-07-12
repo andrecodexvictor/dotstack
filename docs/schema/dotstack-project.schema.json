@@ -1,0 +1,144 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DotstackProjectBrief",
+  "description": "Configuration schema for Dotstack project briefs used to generate technology stack recommendations.",
+  "type": "object",
+  "properties": {
+    "product": {
+      "type": "object",
+      "required": ["name", "type"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the product/project."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["SaaS", "API", "MobileApp", "CLI", "InternalTool", "WebApp"],
+          "description": "The core product delivery type."
+        }
+      }
+    },
+    "team": {
+      "type": "object",
+      "required": ["devs", "experience"],
+      "properties": {
+        "devs": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of developers on the project."
+        },
+        "experience": {
+          "type": "string",
+          "enum": ["junior", "intermediate", "senior"],
+          "description": "Average team experience level."
+        }
+      }
+    },
+    "requirements": {
+      "type": "object",
+      "required": ["scale"],
+      "properties": {
+        "scale": {
+          "type": "string",
+          "enum": ["low", "medium", "high"],
+          "description": "Expected traffic and data scale."
+        },
+        "latency": {
+          "type": "string",
+          "enum": ["normal", "low-latency"],
+          "default": "normal",
+          "description": "Latency requirements."
+        },
+        "availability": {
+          "type": "string",
+          "enum": ["normal", "high-availability"],
+          "default": "normal",
+          "description": "Availability requirements."
+        }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "language": {
+          "type": "string",
+          "enum": ["TypeScript", "Python", "Go", "Java", "Rust", "Ruby", "Elixir", "PHP", "CSharp"],
+          "description": "Force a specific programming language preference."
+        },
+        "database": {
+          "type": "string",
+          "enum": ["PostgreSQL", "MongoDB", "SQLite", "Redis", "MySQL", "Cassandra", "Neo4j", "Qdrant", "DynamoDB"],
+          "description": "Force a specific database preference."
+        },
+        "cloud": {
+          "type": "string",
+          "enum": ["AWS", "Vercel", "Render", "Docker", "GCP", "Azure", "Fly.io", "Cloudflare", "Supabase"],
+          "description": "Force a specific deployment/hosting preference."
+        },
+        "aiFramework": {
+          "type": "string",
+          "enum": ["LangChain", "LlamaIndex", "LangGraph"],
+          "description": "Force a specific AI/LLM orchestration framework."
+        },
+        "budget": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Maximum monthly budget in USD."
+        }
+      }
+    },
+    "productSubtype": {
+      "type": "string",
+      "enum": ["api", "saas", "internal-tool", "agentic-system", "ecommerce", "marketplace", "data-platform"],
+      "description": "Detailed subtype of the product being built."
+    },
+    "compliance": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["lgpd", "gdpr", "pci", "hipaa"]
+      },
+      "description": "Regulatory compliance requirements."
+    },
+    "dataResidency": {
+      "type": "string",
+      "description": "Mandatory geographical region for data storage."
+    },
+    "multiTenant": {
+      "type": "boolean",
+      "description": "Whether the application requires multi-tenant isolation."
+    },
+    "realTime": {
+      "type": "boolean",
+      "description": "Whether the application features significant real-time functionality."
+    },
+    "haRequirements": {
+      "type": "string",
+      "enum": ["none", "standard", "high", "critical"],
+      "description": "Detailed high-availability and disaster recovery requirements."
+    },
+    "security": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["basic", "standard", "hardened"],
+          "default": "standard",
+          "description": "Target security profile."
+        },
+        "encryption": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether end-to-end or column-level encryption is required."
+        },
+        "secretsManagement": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether advanced secrets management (e.g. Vault, KMS) is required."
+        }
+      }
+    }
+  },
+  "required": ["product", "team", "requirements"]
+}

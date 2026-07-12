@@ -6,6 +6,7 @@ export interface SearchMatch {
   endLine: number;
   snippet: string;
   score: number;
+  artifactType: 'code' | 'config' | 'infra' | 'docs' | 'test' | 'other';
 }
 
 const STOP_WORDS = new Set([
@@ -33,10 +34,11 @@ interface Chunk {
   tf: Record<string, number>;
 }
 
-export class SemanticSearchService {
-  /**
-   * Tokenize text: lowercase, split by non-alphanumeric, filter stop words
-   */
+export interface SearchBackend {
+  search(files: ProjectFile[], query: string, topK: number): SearchMatch[];
+}
+
+export class TFIDFBackend implements SearchBackend {
   private tokenize(text: string): string[] {
     return text
       .toLowerCase()
@@ -45,14 +47,29 @@ export class SemanticSearchService {
       .filter(token => token.length > 1 && !STOP_WORDS.has(token));
   }
 
-  /**
-   * Run semantic search over the project files list
-   */
-  public search(
-    files: ProjectFile[],
-    query: string,
-    topK = 5
-  ): SearchMatch[] {
+  private classifyArtifact(relativePath: string): SearchMatch['artifactType'] {
+    const ext = relativePath.split('.').pop()?.toLowerCase();
+    const name = relativePath.split('/').pop()?.toLowerCase();
+
+    if (relativePath.includes('test') || relativePath.includes('spec') || ext === 'test' || ext === 'spec') {
+      return 'test';
+    }
+    if (relativePath.includes('docs/') || relativePath.includes('documentation/') || ext === 'md' || ext === 'txt') {
+      return 'docs';
+    }
+    if (ext === 'tf' || ext === 'hcl' || name === 'dockerfile' || name === 'docker-compose.yml' || name === 'docker-compose.yaml') {
+      return 'infra';
+    }
+    if (ext === 'json' || ext === 'yaml' || ext === 'yml' || ext === 'toml' || name === 'makefile' || name === 'justfile') {
+      return 'config';
+    }
+    if (['ts', 'js', 'py', 'go', 'rs', 'java', 'kt', 'cs', 'rb', 'php', 'ex', 'exs'].includes(ext || '')) {
+      return 'code';
+    }
+    return 'other';
+  }
+
+  public search(files: ProjectFile[], query: string, topK: number): SearchMatch[] {
     const queryTokens = this.tokenize(query);
     if (queryTokens.length === 0) {
       return [];
@@ -171,7 +188,8 @@ export class SemanticSearchService {
           startLine: chunk.startLine,
           endLine: chunk.endLine,
           snippet: chunk.content,
-          score: Math.round(score * 1000) / 1000 // limit decimal precision
+          score: Math.round(score * 1000) / 1000,
+          artifactType: this.classifyArtifact(chunk.relativePath)
         });
       }
     }
@@ -182,3 +200,28 @@ export class SemanticSearchService {
       .slice(0, topK);
   }
 }
+
+export class EmbeddingsBackend implements SearchBackend {
+  // Placeholder/hook for local vector embeddings backend in future roadmap phases
+  public search(files: ProjectFile[], query: string, topK: number): SearchMatch[] {
+    console.warn('EmbeddingsBackend is currently a placeholder. Falling back to empty search.');
+    return [];
+  }
+}
+
+export class SemanticSearchService {
+  private backend: SearchBackend;
+
+  constructor(backend: SearchBackend = new TFIDFBackend()) {
+    this.backend = backend;
+  }
+
+  public search(
+    files: ProjectFile[],
+    query: string,
+    topK = 5
+  ): SearchMatch[] {
+    return this.backend.search(files, query, topK);
+  }
+}
+

@@ -1,0 +1,20 @@
+# dotstack-project.yaml - Edge First Configuration example
+product:
+  name: "Global Edge API Gateway"
+  type: "API"
+
+team:
+  devs: 2
+  experience: "intermediate"
+
+requirements:
+  scale: "medium"
+  latency: "low-latency"
+  availability: "high-availability"
+
+productSubtype: "api"
+realTime: true
+
+constraints:
+  language: "TypeScript"
+  cloud: "Cloudflare"

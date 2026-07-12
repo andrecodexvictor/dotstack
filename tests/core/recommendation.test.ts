@@ -153,4 +153,63 @@ describe('RecommendationService Rules Engine', () => {
     const recAgent = service.recommend(briefAgent);
     expect(recAgent.recommendation.aiFramework).toBe('LangGraph');
   });
+
+  it('should apply compliance bonuses and recommend secure systems', () => {
+    const brief: ProjectBrief = {
+      product: {
+        name: 'HIPAA Compliant Health App',
+        type: 'SaaS'
+      },
+      team: {
+        devs: 6,
+        experience: 'senior'
+      },
+      requirements: {
+        scale: 'high',
+        latency: 'normal',
+        availability: 'high-availability'
+      },
+      constraints: {},
+      compliance: ['hipaa'],
+      security: {
+        level: 'hardened',
+        encryption: true,
+        secretsManagement: true
+      }
+    };
+
+    const rec = service.recommend(brief);
+
+    expect(rec.recommendation.backend).toBe('Java (Spring Boot)');
+    expect(rec.recommendation.observability).toBe('OpenTelemetry');
+    expect(rec.recommendation.security).toBe('HashiCorp Vault');
+    expect(rec.risks.some(r => r.includes('HIPAA'))).toBe(true);
+  });
+
+  it('should recommend Amazon Aurora and active-active setups under critical HA requirements', () => {
+    const brief: ProjectBrief = {
+      product: {
+        name: 'Critical Finance App',
+        type: 'SaaS'
+      },
+      team: {
+        devs: 8,
+        experience: 'senior'
+      },
+      requirements: {
+        scale: 'high',
+        latency: 'normal',
+        availability: 'high-availability'
+      },
+      constraints: {
+        cloud: 'AWS'
+      },
+      haRequirements: 'critical'
+    };
+
+    const rec = service.recommend(brief);
+
+    expect(rec.recommendation.database).toBe('Amazon Aurora (PostgreSQL)');
+    expect(rec.risks).toContain('CRITICAL HA requirements: Recommend cross-region database replication and active-active clustering.');
+  });
 });

@@ -6,7 +6,7 @@
 
 **dotstack** is a deterministic, rule-based technology stack recommendation engine built for human developers and AI coding agents. It evaluates project briefs and constraints to deliver optimal architectural selections, complete with curated design patterns, template references, and **offline vector space semantic search**.
 
-![dotstack Architecture](./docs/assets/dotstack_architecture_schematic.png)
+![dotstack Architecture](docs/assets/dotstack_architecture_schematic.png)
 
 ### 🚀 Supported Technologies & Frameworks
 The scoring engine evaluates and selects from the following platforms:

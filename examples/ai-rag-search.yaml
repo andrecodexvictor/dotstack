@@ -1,0 +1,19 @@
+# Example: AI-powered RAG Search Engine
+# dotstack will recommend Qdrant, LlamaIndex, and Python (FastAPI)
+
+product:
+  name: "Smart Document Search AI"
+  type: "SaaS"
+
+team:
+  devs: 3
+  experience: "senior"
+
+requirements:
+  scale: "high"
+  latency: "low-latency"
+  availability: "high-availability"
+
+constraints:
+  database: "Qdrant"
+  # aiFramework: "LlamaIndex"  # Optional override

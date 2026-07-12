@@ -1,0 +1,19 @@
+# Example: Enterprise Java SaaS with large team
+# dotstack will recommend Spring Boot, PostgreSQL, AWS, and Redis caching
+
+product:
+  name: "Enterprise CRM Platform"
+  type: "SaaS"
+
+team:
+  devs: 12
+  experience: "senior"
+
+requirements:
+  scale: "high"
+  latency: "normal"
+  availability: "high-availability"
+
+constraints:
+  language: "Java"
+  cloud: "AWS"

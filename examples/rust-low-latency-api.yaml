@@ -1,0 +1,19 @@
+# Example: Low-latency Rust microservice on edge
+# dotstack will recommend Rust (Axum), Redis, Fly.io
+
+product:
+  name: "Trading Signal Gateway"
+  type: "API"
+
+team:
+  devs: 4
+  experience: "senior"
+
+requirements:
+  scale: "high"
+  latency: "low-latency"
+  availability: "high-availability"
+
+constraints:
+  language: "Rust"
+  cloud: "Fly.io"

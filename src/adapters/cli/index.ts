@@ -162,16 +162,20 @@ mcpCmd
 
 mcpCmd
   .command('install')
-  .description('Automatically register dotstack MCP server in Claude Desktop and/or Cursor config')
-  .argument('[target]', 'Target tool configuration: cursor, claude, or all', 'all')
+  .description('Register dotstack MCP server in AI agent/editor configs (Claude Desktop, Claude Code, Cursor, VS Code Copilot, Windsurf, Codex CLI, and project .mcp.json)')
+  .argument('[target]', 'Target: claude, cursor, vscode, windsurf, codex, or all', 'all')
   .action(async (target) => {
     try {
       const currentFile = fileURLToPath(import.meta.url);
-      logger.info(`Configuring dotstack MCP using installer path: ${pc.cyan(currentFile)}...`);
+      logger.info(`Configuring dotstack MCP for target "${pc.cyan(target)}" using path: ${pc.cyan(currentFile)}...`);
       const results = await installMcpServer(target as any, currentFile);
-      for (const res of results) {
-        logger.success(res);
+      if (results.length === 0) {
+        logger.warn('No configurations were updated. Check that the target editors are installed.');
       }
+      for (const res of results) {
+        console.log(res);
+      }
+      logger.success(`MCP installation complete. ${results.length} agent config(s) updated.`);
     } catch (err: any) {
       logger.error(`MCP Installation failed: ${err.message}`);
       process.exit(1);

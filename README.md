@@ -39,81 +39,141 @@ By exposing a native **Model Context Protocol (MCP) server** and an **offline se
 ### Path 1: Agent & IDE Integration via MCP (Recommended)
 Use this path to automatically register the `dotstack` tools in your AI editors.
 
-You can install `dotstack` as an MCP server globally with a single command:
+**One-command automatic setup** — configures Claude Desktop, Claude Code, Cursor, VS Code Copilot, Windsurf, Codex CLI, and a project-level `.mcp.json` all at once:
 ```bash
 npx -y dotstack@latest mcp install
 ```
-*This command downloads the latest version of `dotstack`, automatically scans your local editor setups (Cursor and Claude Desktop), and registers the MCP server configuration for them.*
 
-2. **Manual Configuration for Specific Agents**:
-   If you prefer manual configuration, reference the setups below replacing `/absolute/path/to/dotstack/` with your local installation directory:
+Or target a specific agent:
+```bash
+npx dotstack mcp install claude    # Claude Desktop + Claude Code CLI
+npx dotstack mcp install cursor    # Cursor
+npx dotstack mcp install vscode    # VS Code / GitHub Copilot
+npx dotstack mcp install windsurf  # Windsurf (Codeium)
+npx dotstack mcp install codex     # Codex CLI (OpenAI)
+npx dotstack mcp install all       # All of the above + project .mcp.json
+```
 
-   - **Claude Code** (`~/.claude/settings.json`) & **Claude Desktop** (`claude_desktop_config.json`):
-     ```json
-     {
-       "mcpServers": {
-         "dotstack": {
-           "command": "node",
-           "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-         }
-       }
-     }
-     ```
+**Manual Configuration** — if you prefer to configure agents by hand, replace `/absolute/path/to/dotstack/` with your local installation directory:
 
-   - **Cursor** (`User/globalStorage/storage.json` under `mcpServers`):
-     ```json
-     "mcpServers": {
-       "dotstack": {
-         "name": "dotstack",
-         "type": "stdio",
-         "command": "node",
-         "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"],
-         "enabled": true
-       }
-     }
-     ```
+<details>
+<summary><strong>Claude Code</strong> (<code>~/.claude.json</code>) & <strong>Claude Desktop</strong> (<code>claude_desktop_config.json</code>)</summary>
 
-   - **Codex CLI** (`.codex/config.toml`):
-     ```toml
-     [mcp_servers.dotstack]
-     command = "node"
-     args = ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-     ```
+```json
+{
+  "mcpServers": {
+    "dotstack": {
+      "command": "node",
+      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+    }
+  }
+}
+```
+</details>
 
-   - **VS Code (GitHub Copilot)** (`settings.json`):
-     ```json
-     "github.copilot.chat.mcp.servers": {
-       "dotstack": {
-         "command": "node",
-         "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-       }
-     }
-     ```
+<details>
+<summary><strong>Cursor</strong> (<code>storage.json</code> under <code>mcpServers</code>)</summary>
 
-   - **Google Antigravity** (`.agents/plugin.json` or local settings):
-     ```json
-     {
-       "plugins": {
-         "dotstack": {
-           "type": "mcp",
-           "command": "node",
-           "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
-         }
-       }
-     }
-     ```
+```json
+"mcpServers": {
+  "dotstack": {
+    "name": "dotstack",
+    "type": "stdio",
+    "command": "node",
+    "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"],
+    "enabled": true
+  }
+}
+```
+</details>
 
-   - **OpenCode CLI**: Connect standard stdio transport using the node command binary path:
-     ```bash
-     opencode mcp add --command "node" --args "/absolute/path/to/dotstack/dist/adapters/cli/index.js,mcp,start"
-     ```
+<details>
+<summary><strong>VS Code / GitHub Copilot</strong> (<code>settings.json</code>)</summary>
 
-3. **Prompt your AI agent**:
-   AI agents can now run stack audits and semantic codebase searches using these tools:
-   - `dotstack_init`: Instantiates parameter files.
-   - `dotstack_recommend`: Evaluates project briefs and writes recommendation reports.
-   - `dotstack_patterns`: Resolves design pattern guidelines and templates.
-   - `dotstack_semantic_search`: Performs offline vector space searches over code chunks.
+```json
+"github.copilot.chat.mcp.servers": {
+  "dotstack": {
+    "command": "node",
+    "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>Windsurf</strong> (<code>mcp_config.json</code>)</summary>
+
+```json
+{
+  "mcpServers": {
+    "dotstack": {
+      "command": "node",
+      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>Codex CLI</strong> (<code>~/.codex/config.json</code>)</summary>
+
+```json
+{
+  "mcp_servers": {
+    "dotstack": {
+      "command": "node",
+      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>Google Antigravity</strong> (<code>.agents/plugin.json</code>)</summary>
+
+```json
+{
+  "plugins": {
+    "dotstack": {
+      "type": "mcp",
+      "command": "node",
+      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><strong>OpenCode CLI</strong></summary>
+
+```bash
+opencode mcp add --command "node" --args "/absolute/path/to/dotstack/dist/adapters/cli/index.js,mcp,start"
+```
+</details>
+
+<details>
+<summary><strong>PI.dev</strong> (via project-level <code>.mcp.json</code>)</summary>
+
+```json
+{
+  "mcpServers": {
+    "dotstack": {
+      "command": "node",
+      "args": ["/absolute/path/to/dotstack/dist/adapters/cli/index.js", "mcp", "start"]
+    }
+  }
+}
+```
+</details>
+
+**Available MCP Tools** — once connected, AI agents can call:
+- `dotstack_init`: Instantiates parameter files.
+- `dotstack_recommend`: Evaluates project briefs and writes recommendation reports.
+- `dotstack_patterns`: Resolves design pattern guidelines and templates.
+- `dotstack_semantic_search`: Performs offline vector space searches over code chunks.
 
 ---
 

@@ -1,0 +1,19 @@
+# Example: Solo developer CLI tool
+# dotstack will recommend SQLite, TypeScript (Express), and no frontend
+
+product:
+  name: "DevTool CLI"
+  type: "CLI"
+
+team:
+  devs: 1
+  experience: "intermediate"
+
+requirements:
+  scale: "low"
+  latency: "normal"
+  availability: "normal"
+
+constraints:
+  language: "TypeScript"
+  budget: 0

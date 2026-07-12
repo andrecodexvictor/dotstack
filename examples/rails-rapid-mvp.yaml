@@ -1,0 +1,19 @@
+# Example: Rapid MVP prototype on Rails
+# dotstack will recommend Ruby on Rails, PostgreSQL, Render
+
+product:
+  name: "Quick Marketplace MVP"
+  type: "WebApp"
+
+team:
+  devs: 2
+  experience: "intermediate"
+
+requirements:
+  scale: "medium"
+  latency: "normal"
+  availability: "normal"
+
+constraints:
+  language: "Ruby"
+  budget: 50

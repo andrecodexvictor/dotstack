@@ -50,6 +50,29 @@ export async function installMcpServer(target: 'cursor' | 'claude' | 'all', bina
     } catch (err: any) {
       console.error(`Failed to install Claude Desktop MCP: ${err.message}`);
     }
+
+    // 1b. Install Claude Code CLI MCP (~/.claude.json)
+    const claudeCodePath = path.join(home, '.claude.json');
+    try {
+      let config: any = {};
+      try {
+        const existing = await fs.readFile(claudeCodePath, 'utf8');
+        config = JSON.parse(existing);
+      } catch {
+        // No existing config
+      }
+
+      if (!config.mcpServers) config.mcpServers = {};
+      config.mcpServers['dotstack'] = {
+        command: 'node',
+        args: [resolvedBinaryPath, 'mcp', 'start']
+      };
+
+      await fs.writeFile(claudeCodePath, JSON.stringify(config, null, 2), 'utf8');
+      installedTargets.push(`Claude Code CLI config updated at: ${claudeCodePath}`);
+    } catch (err: any) {
+      console.error(`Failed to install Claude Code MCP: ${err.message}`);
+    }
   }
 
   // 2. Install Cursor MCP

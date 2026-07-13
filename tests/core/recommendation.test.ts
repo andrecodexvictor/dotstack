@@ -212,4 +212,76 @@ describe('RecommendationService Rules Engine', () => {
     expect(rec.recommendation.database).toBe('Amazon Aurora (PostgreSQL)');
     expect(rec.risks).toContain('CRITICAL HA requirements: Recommend cross-region database replication and active-active clustering.');
   });
+
+  it('should correctly resolve C, C++, and CSharp overrides without collisions', () => {
+    // C++
+    const briefCpp: ProjectBrief = {
+      product: { name: 'Fast CPP App', type: 'API' },
+      team: { devs: 1, experience: 'senior' },
+      requirements: { scale: 'high', latency: 'low-latency', availability: 'normal' },
+      constraints: { language: 'C++' }
+    };
+    const recCpp = service.recommend(briefCpp);
+    expect(recCpp.recommendation.backend).toBe('C++ (Drogon)');
+    expect(recCpp.patterns.map(p => p.name)).toContain('RAII & Systems Memory Management');
+
+    // C
+    const briefC: ProjectBrief = {
+      product: { name: 'Native C App', type: 'API' },
+      team: { devs: 1, experience: 'senior' },
+      requirements: { scale: 'low', latency: 'normal', availability: 'normal' },
+      constraints: { language: 'C' }
+    };
+    const recC = service.recommend(briefC);
+    expect(recC.recommendation.backend).toBe('C (Native/CGI)');
+    expect(recC.patterns.map(p => p.name)).toContain('RAII & Systems Memory Management');
+
+    // C#
+    const briefCSharp: ProjectBrief = {
+      product: { name: 'Enterprise C# App', type: 'API' },
+      team: { devs: 5, experience: 'senior' },
+      requirements: { scale: 'high', latency: 'normal', availability: 'normal' },
+      constraints: { language: 'CSharp' }
+    };
+    const recCSharp = service.recommend(briefCSharp);
+    expect(recCSharp.recommendation.backend).toBe('CSharp (ASP.NET Core)');
+  });
+
+  it('should recommend distributed architectures without over-engineering alerts for solo devs if AI supported', () => {
+    const brief: ProjectBrief = {
+      product: { name: 'Million User AI Startup', type: 'SaaS' },
+      team: {
+        devs: 1,
+        experience: 'senior',
+        aiSupported: true,
+        onePersonBillionBusiness: true
+      },
+      requirements: { scale: 'high', latency: 'normal', availability: 'normal' },
+      constraints: {}
+    };
+
+    const rec = service.recommend(brief);
+    
+    // Since it has AI support, it should support high scale distributed architecture scoring (like Modular Monolith or Microservices)
+    // without microservices penalty or over-engineering alerts.
+    expect(rec.recommendation.architectureStyle).not.toBe('Monolith');
+    expect(rec.risks.some(r => r.includes('discouraged'))).toBe(false);
+  });
+
+  it('should attach UI/UX design tokens, progressive disclosure ergonomics, and Custom Hooks Architecture patterns for frontend apps', () => {
+    const brief: ProjectBrief = {
+      product: { name: 'Web App Portal', type: 'WebApp' },
+      team: { devs: 2, experience: 'senior' },
+      requirements: { scale: 'medium', latency: 'normal', availability: 'normal' },
+      constraints: {}
+    };
+
+    const rec = service.recommend(brief);
+    
+    expect(rec.recommendation.frontend).not.toBe('None');
+    const patternNames = rec.patterns.map(p => p.name);
+    expect(patternNames).toContain('Design Tokens & Theme Consistency');
+    expect(patternNames).toContain('Cognitive Load Minimization & UX Ergonomics');
+    expect(patternNames).toContain('Custom Hooks Architecture (State & Effect Decoupling)');
+  });
 });

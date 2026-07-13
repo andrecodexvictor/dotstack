@@ -54,7 +54,17 @@ export class RecommendationService {
     // Constraint: Language Override
     if (brief.constraints.language) {
       const lang = brief.constraints.language;
-      const candidates = Object.keys(registry.backend).filter(key => key.startsWith(lang));
+      let candidates: string[] = [];
+      if (lang === 'C') {
+        candidates = Object.keys(registry.backend).filter(key => key.startsWith('C ('));
+      } else if (lang === 'C++') {
+        candidates = Object.keys(registry.backend).filter(key => key.startsWith('C++'));
+      } else if (lang === 'CSharp') {
+        candidates = Object.keys(registry.backend).filter(key => key.startsWith('CSharp'));
+      } else {
+        candidates = Object.keys(registry.backend).filter(key => key.startsWith(lang));
+      }
+
       if (candidates.length > 0) {
         // Pick the highest scoring framework for this language
         backend = candidates.reduce((a, b) => 
@@ -65,6 +75,8 @@ export class RecommendationService {
         // Fallbacks
         if (lang === 'Go') backend = 'Go (Gin)';
         else if (lang === 'Java') backend = 'Java (Spring Boot)';
+        else if (lang === 'C++') backend = 'C++ (Drogon)';
+        else if (lang === 'C') backend = 'C (Native/CGI)';
         registry.rationales.backend = `Backend framework forced to ${backend} due to language constraint preference for ${lang}.`;
       }
     }
@@ -95,7 +107,9 @@ export class RecommendationService {
       hasMessaging: messaging !== 'None',
       hasKubernetes: orchestration.includes('Kubernetes'),
       isMobile: brief.product.type === 'MobileApp',
-      isHardened: brief.security?.level === 'hardened'
+      isHardened: brief.security?.level === 'hardened',
+      hasFrontend: frontend !== 'None',
+      isAiSupported: !!brief.team.aiSupported || !!brief.team.onePersonBillionBusiness
     });
 
     // 7. Format Output & Post-Resolution Risk Flags
@@ -105,7 +119,7 @@ export class RecommendationService {
     if (auth === 'None' && brief.product.type !== 'CLI' && brief.product.type !== 'InternalTool') {
       registry.risks.push('No auth/security layer — WARNING');
     }
-    if (orchestration === 'Kubernetes (EKS/GKE/AKS)' && brief.team.devs <= 2) {
+    if (orchestration === 'Kubernetes (EKS/GKE/AKS)' && brief.team.devs <= 2 && !brief.team.aiSupported && !brief.team.onePersonBillionBusiness) {
       registry.risks.push('Over-engineering alert: K8s for a 2-person MVP');
     }
 

@@ -33,6 +33,9 @@ export class BackendRule implements Rule {
     registry.backend['Java (Spring Boot)'] += 10;
     registry.backend['Kotlin (Ktor)'] += 10;
     registry.backend['CSharp (ASP.NET Core)'] += 10;
+    registry.backend['C++ (Drogon)'] += 10;
+    registry.backend['C++ (Crow)'] += 10;
+    registry.backend['C (Native/CGI)'] += 5;
 
     // 1. Edge-first Cloudflare Workers
     if (cloud === 'Cloudflare') {
@@ -44,14 +47,16 @@ export class BackendRule implements Rule {
     // 2. High Scale & Low-Latency
     if (latency === 'low-latency') {
       registry.backend['Rust (Axum)'] += 60;
+      registry.backend['C++ (Drogon)'] += 55;
       registry.backend['Go (Gin)'] += 50;
       registry.backend['Elixir (Phoenix)'] += 45;
-      registry.rationales.backend = 'Rust (Axum) or Go (Gin) recommended to satisfy strict low-latency constraints and resource efficiency.';
+      registry.rationales.backend = 'Rust (Axum), C++ (Drogon), or Go (Gin) recommended to satisfy strict low-latency constraints and resource efficiency.';
       return;
     }
 
     // 3. Fast Prototyping for Solo/Duo Developers (Rapid MVC)
-    if (devs <= 2 && (brief.product.type === 'SaaS' || brief.product.type === 'WebApp') && scale !== 'high') {
+    const isAiSupported = !!brief.team.aiSupported || !!brief.team.onePersonBillionBusiness;
+    if (devs <= 2 && (brief.product.type === 'SaaS' || brief.product.type === 'WebApp') && scale !== 'high' && !isAiSupported) {
       registry.backend['Ruby (Ruby on Rails)'] += 55;
       registry.backend['PHP (Laravel)'] += 50;
       registry.backend['Python (Django)'] += 35;

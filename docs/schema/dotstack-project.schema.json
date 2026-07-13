@@ -32,6 +32,16 @@
           "type": "string",
           "enum": ["junior", "intermediate", "senior"],
           "description": "Average team experience level."
+        },
+        "aiSupported": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the team is supported by AI agents."
+        },
+        "onePersonBillionBusiness": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether the team follows the one-person billion dollar business paradigm."
         }
       }
     },
@@ -63,7 +73,7 @@
       "properties": {
         "language": {
           "type": "string",
-          "enum": ["TypeScript", "Python", "Go", "Java", "Rust", "Ruby", "Elixir", "PHP", "CSharp"],
+          "enum": ["TypeScript", "Python", "Go", "Java", "Rust", "Ruby", "Elixir", "PHP", "CSharp", "C", "C++"],
           "description": "Force a specific programming language preference."
         },
         "database": {

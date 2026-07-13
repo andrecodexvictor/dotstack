@@ -12,7 +12,7 @@
 ### 🚀 Supported Technologies & Frameworks
 The scoring engine evaluates and selects from the following platforms across **13 categories**:
 - **Frontend (FE)**: React, Next.js, Vue, Nuxt, Svelte, SvelteKit, Angular, SolidJS, Astro, Remix, Qwik.
-- **Backend (BE)**: Node.js (Express, NestJS, Fastify, Hono), Go (Gin, Fiber, Echo), Python (FastAPI, Django, Flask), Rust (Axum, Actix-web), Ruby on Rails, Elixir (Phoenix), PHP (Laravel, Symfony), Java (Spring Boot), Kotlin (Ktor), C# (ASP.NET Core), Scala (Play Framework).
+- **Backend (BE)**: Node.js (Express, NestJS, Fastify, Hono), Go (Gin, Fiber, Echo), Python (FastAPI, Django, Flask), Rust (Axum, Actix-web), Ruby on Rails, Elixir (Phoenix), PHP (Laravel, Symfony), Java (Spring Boot), Kotlin (Ktor), C# (ASP.NET Core), C++ (Drogon, Crow), C (Native/CGI), Scala (Play Framework).
 - **AI & LLM Orchestration**: LangChain, LlamaIndex, LangGraph, CrewAI, AutoGen, Vector DBs (Qdrant, Pinecone, Weaviate, Chroma, pgvector).
 - **Database (DB)**: PostgreSQL, MySQL, SQLite, MongoDB, Cassandra, Neo4j, DynamoDB, MariaDB, CockroachDB, Amazon Aurora, AWS RDS, GCP Cloud SQL, Google Spanner, Azure SQL, CosmosDB, Firestore, Supabase, PlanetScale, Neon, TiDB.
 - **Caching**: Redis, Memcached, Varnish, CDNs.

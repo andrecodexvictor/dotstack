@@ -236,6 +236,69 @@ export const PATTERN_DATABASE: Record<string, PatternReference> = {
         description: 'Implements SPIFFE Zero Trust identity issuance and transport verification.'
       }
     ]
+  },
+  customHooksArch: {
+    name: 'Custom Hooks Architecture (State & Effect Decoupling)',
+    description: 'Extracts UI component state management, async side-effects, and orchestration workflows into pure custom hooks. This keeps views focused solely on layout/rendering, making the codebase highly testable and structured for AI agent ingestion.',
+    referenceUrl: 'https://react.dev/learn/reusing-logic-with-custom-hooks',
+    examples: [
+      {
+        name: 'Awesome React Hooks Collection',
+        url: 'https://github.com/rehooks/awesome-react-hooks',
+        description: 'Curated list of standard and custom hooks decoupling side-effects and state.'
+      },
+      {
+        name: 'Vue Composition API Hooks Patterns',
+        url: 'https://github.com/vuejs/composition-api',
+        description: 'Demonstrates composition functions that decouple logic from HTML templates.'
+      }
+    ]
+  },
+  designTokensSystem: {
+    name: 'Design Tokens & Theme Consistency',
+    description: 'Abstracts interface attributes (colors, typography, margins, transitions) into static design tokens. Ensures ergonomic UI consistency, robust accessibility contrast, and seamless light/dark mode adaptation.',
+    referenceUrl: 'https://m3.material.io/foundations/design-tokens/overview',
+    examples: [
+      {
+        name: 'Chakra UI Styling Tokens',
+        url: 'https://github.com/chakra-ui/chakra-ui',
+        description: 'Flexible component styling engine driven by unified design tokens.'
+      },
+      {
+        name: 'Radix UI Primitives',
+        url: 'https://github.com/radix-ui/primitives',
+        description: 'Unstyled, accessible UI components mapping CSS tokens to layout structures.'
+      }
+    ]
+  },
+  cognitiveLoadMinimization: {
+    name: 'Cognitive Load Minimization & UX Ergonomics',
+    description: 'Ergonomic interface design prioritizing progressive disclosure, logical keyboard navigation order, explicit active/focus states, and auto-focus fields to minimize input friction and cognitive load.',
+    referenceUrl: 'https://www.nngroup.com/articles/progressive-disclosure/',
+    examples: [
+      {
+        name: 'WAI-ARIA Authoring Practices',
+        url: 'https://github.com/w3c/aria-practices',
+        description: 'Design patterns and ergonomics guidelines for accessible, keyboard-friendly interfaces.'
+      },
+      {
+        name: 'Shadcn UI Accessible Components',
+        url: 'https://github.com/shadcn-ui/ui',
+        description: 'Accessible UI components styled with Tailwind CSS, built on Radix primitives.'
+      }
+    ]
+  },
+  systemsMemoryManagement: {
+    name: 'RAII & Systems Memory Management',
+    description: 'Resource Acquisition Is Initialization (RAII) and smart pointer patterns in C/C++ to ensure automatic memory and socket release, eliminating leaks in native server environments.',
+    referenceUrl: 'https://en.cppreference.com/w/cpp/language/raii',
+    examples: [
+      {
+        name: 'Drogon Web Framework Examples',
+        url: 'https://github.com/drogonframework/drogon',
+        description: 'Modern C++17/20 controller patterns utilizing smart memory management.'
+      }
+    ]
   }
 };
 
@@ -248,9 +311,28 @@ export function getPatternsForStack(
     hasKubernetes?: boolean;
     isMobile?: boolean;
     isHardened?: boolean;
+    hasFrontend?: boolean;
+    isAiSupported?: boolean;
   }
 ): PatternReference[] {
   const patterns: PatternReference[] = [];
+
+  // Match RAII & Systems Memory Management for C/C++ backends
+  if (backend.includes('Drogon') || backend.includes('Crow') || backend.includes('C ')) {
+    patterns.push(PATTERN_DATABASE.systemsMemoryManagement);
+  }
+
+  // Match UI/UX design patterns & custom hooks
+  if (additionalInfo?.hasFrontend) {
+    patterns.push(PATTERN_DATABASE.designTokensSystem);
+    patterns.push(PATTERN_DATABASE.cognitiveLoadMinimization);
+    patterns.push(PATTERN_DATABASE.customHooksArch);
+  }
+
+  // If AI supported, highlight Hook Architecture as highly recommended for Agentic coding
+  if (additionalInfo?.isAiSupported && !patterns.some(p => p && p.name === PATTERN_DATABASE.customHooksArch.name)) {
+    patterns.push(PATTERN_DATABASE.customHooksArch);
+  }
 
   // Match Clean Arch
   if (archStyle === 'Modular Monolith' || backend.includes('NestJS') || backend.includes('Spring Boot') || backend.includes('ASP.NET')) {

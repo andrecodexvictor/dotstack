@@ -52,7 +52,9 @@ export const LanguagePreferenceSchema = z.enum([
   'Ruby',
   'Elixir',
   'PHP',
-  'CSharp'
+  'CSharp',
+  'C',
+  'C++'
 ]);
 
 export type LanguagePreference = z.infer<typeof LanguagePreferenceSchema>;
@@ -162,7 +164,9 @@ export const ProjectBriefSchema = z.object({
   }),
   team: z.object({
     devs: z.number().int().positive(),
-    experience: ExperienceLevelSchema
+    experience: ExperienceLevelSchema,
+    aiSupported: z.boolean().optional().default(false),
+    onePersonBillionBusiness: z.boolean().optional().default(false)
   }),
   requirements: z.object({
     scale: ScaleRequirementsSchema,

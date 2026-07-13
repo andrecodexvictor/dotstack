@@ -48,7 +48,10 @@ export function createInitialScores(): ScoringRegistry {
       'Java (Spring Boot)': 0,
       'Kotlin (Ktor)': 0,
       'CSharp (ASP.NET Core)': 0,
-      'Scala (Play Framework)': 0
+      'Scala (Play Framework)': 0,
+      'C++ (Drogon)': 0,
+      'C++ (Crow)': 0,
+      'C (Native/CGI)': 0
     },
     database: {
       PostgreSQL: 0,

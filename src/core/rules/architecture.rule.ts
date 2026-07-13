@@ -10,27 +10,45 @@ export class ArchitectureRule implements Rule {
     const devs = brief.team.devs;
     const scale = brief.requirements.scale;
 
+    const isAiSupported = !!brief.team.aiSupported || !!brief.team.onePersonBillionBusiness;
+
     if (devs < 6) {
       if (scale === 'high') {
-        registry.architectureStyle['Modular Monolith'] += 50;
-        registry.architectureStyle['Monolith'] += 20;
-        registry.architectureStyle['Microservices'] -= 100;
+        if (isAiSupported) {
+          registry.architectureStyle['Microservices'] += 40;
+          registry.architectureStyle['Modular Monolith'] += 50;
+          registry.architectureStyle['Monolith'] += 10;
+          registry.rationales.architectureStyle = 
+            `Modular Monolith or Microservices chosen. AI-agent support (${devs} dev(s) with AI automation) handles the operational overhead of distributed systems at high scale.`;
+        } else {
+          registry.architectureStyle['Modular Monolith'] += 50;
+          registry.architectureStyle['Monolith'] += 20;
+          registry.architectureStyle['Microservices'] -= 100;
 
-        registry.risks.push(
-          `Microservices are discouraged for teams with only ${devs} developer(s) due to overhead.`
-        );
-        registry.rationales.architectureStyle = 
-          `Modular Monolith chosen to support high scaling and clean modular boundaries for a small team (${devs} dev(s)).`;
+          registry.risks.push(
+            `Microservices are discouraged for teams with only ${devs} developer(s) due to overhead.`
+          );
+          registry.rationales.architectureStyle = 
+            `Modular Monolith chosen to support high scaling and clean modular boundaries for a small team (${devs} dev(s)).`;
+        }
       } else {
-        registry.architectureStyle['Monolith'] += 50;
-        registry.architectureStyle['Modular Monolith'] += 30;
-        registry.architectureStyle['Microservices'] -= 100;
+        if (isAiSupported) {
+          registry.architectureStyle['Modular Monolith'] += 40;
+          registry.architectureStyle['Monolith'] += 40;
+          registry.architectureStyle['Microservices'] += 10;
+          registry.rationales.architectureStyle = 
+            `Monolith or Modular Monolith chosen. AI agent support allows building modular structures with minimal human friction.`;
+        } else {
+          registry.architectureStyle['Monolith'] += 50;
+          registry.architectureStyle['Modular Monolith'] += 30;
+          registry.architectureStyle['Microservices'] -= 100;
 
-        registry.risks.push(
-          `Microservices are discouraged for teams with only ${devs} developer(s) due to overhead.`
-        );
-        registry.rationales.architectureStyle = 
-          `Monolith chosen because the team is small (${devs} dev(s)). Minimizes infrastructure and synchronization overhead.`;
+          registry.risks.push(
+            `Microservices are discouraged for teams with only ${devs} developer(s) due to overhead.`
+          );
+          registry.rationales.architectureStyle = 
+            `Monolith chosen because the team is small (${devs} dev(s)). Minimizes infrastructure and synchronization overhead.`;
+        }
       }
     } else {
       if (scale === 'high') {
